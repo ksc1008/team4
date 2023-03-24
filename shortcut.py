@@ -1,3 +1,4 @@
+# Ctrl+F1 -> 창 전환    Ctrl+Q -> 나가기
 import time
 
 import win32api
