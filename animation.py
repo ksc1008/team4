@@ -21,22 +21,28 @@ class Sticker(QtWidgets.QMainWindow):
     def setupUi(self):
         centralWidget = QtWidgets.QWidget(self)
         self.setCentralWidget(centralWidget)
-
+        # frame 제거, stays on top 설정
         flags = QtCore.Qt.WindowType.FramelessWindowHint | QtCore.Qt.WindowType. \
             WindowStaysOnTopHint if self.on_top else QtCore.Qt.WindowType.FramelessWindowHint
         self.setWindowFlags(flags)
+
+        # 배경 투명
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground, True)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
         label = QtWidgets.QLabel(centralWidget)
         movie = QMovie(self.img_path)
         label.setMovie(movie)
+
+        # movie 크기를 측정하기 위해서는 1번 실행해야 함   movie.frameRect().size(): movie 크기
         movie.start()
         movie.stop()
 
+        # movie 크기 조정
         w = int(movie.frameRect().size().width() * self.size)
         h = int(movie.frameRect().size().height() * self.size)
         movie.setScaledSize(QtCore.QSize(w, h))
+
         movie.start()
 
         self.setGeometry(self.xy[0], self.xy[1], w, h)
