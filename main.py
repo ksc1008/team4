@@ -13,15 +13,26 @@ class CustomWindow(QMainWindow):
         self.mx = 400
         self.my = 400
 
+#       오버라이드 할 paintEvent
     def paintEvent(self, event=None):
         painter = QPainter(self)
-        self.mx = self.mx + 0.1
 
+        #뒷 배경 그리기
+
+        # 1. 투명도를 설정하고
         painter.setOpacity(0.2)
+        # 2. 색상을 정하고
         painter.setBrush(PyQt6.QtGui.QColorConstants.White)
-        painter.setPen(QPen(PyQt6.QtGui.QColorConstants.White))
+        # 3. 사각형으로 칠한다.
         painter.drawRect(self.rect())
+
+        #원 그리기
+
+        # 1. 투명도를 설정하고
         painter.setOpacity(0.8)
+        # 2. 색상을 정하고
+        painter.setBrush(PyQt6.QtGui.QColorConstants.Red)
+        # 3. 원형으로 칠한다.
         painter.drawEllipse(self.mx,self.my,300,300)
 
 
@@ -29,7 +40,6 @@ app = QApplication(sys.argv)
 
 # Create the main window
 window = CustomWindow()
-
 window.setWindowFlags(
             Qt.WindowType.WindowStaysOnTopHint |
             Qt.WindowType.FramelessWindowHint |
@@ -37,17 +47,6 @@ window.setWindowFlags(
             Qt.WindowType.WindowTransparentForInput)
 window.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground, True)
 window.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
-
-# Create the button
-pushButton = QPushButton(window)
-pushButton.setGeometry(QRect(240, 190, 90, 31))
-pushButton.setText("Finished")
-
-# Center the button
-qr = pushButton.frameGeometry()
-cp = QtGui.QGuiApplication.primaryScreen().availableGeometry().center()
-qr.moveCenter(cp)
-pushButton.move(qr.topLeft())
 
 # Run the application
 window.showFullScreen()
