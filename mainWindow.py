@@ -5,6 +5,9 @@ from PyQt6 import QtCore, QtGui
 
 from keyboardEvent import ShorCut
 from overlay_animations import animator
+from overlay_objects.overlayObject import OverlayObject
+
+import demo
 
 
 class MainWindow(QMainWindow):
@@ -21,6 +24,9 @@ class MainWindow(QMainWindow):
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.animator = animator.Animator(self)
 
+        # OverlayObject 객체 리스트
+        self.objects = []
+
         self.shortcut = ShorCut()
         self.shortcut.start()
         self.shortcut.exit_key.connect(self.shortcut_exit_key)
@@ -31,14 +37,20 @@ class MainWindow(QMainWindow):
     def paintEvent(self, event=None):
         painter = QPainter(self)
 
-        self.animator.update(painter)
+        for o in self.objects:
+            o.draw(painter)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.test.exit(0)
 
+    def addObject(self, obj: OverlayObject):    # 메인 윈도우의 objects에 새 오브젝트를 추가.
+        self.objects.append(obj)
+        obj.window = self
+
     @pyqtSlot()
     def shortcut_exit_key(self):
-        self.animator.startTestAnimation()
+        # demo.py 참고
+        self.addObject(demo.createTestObjectAndApplyAnimation(self.animator))
 
 
 # Create the main window
