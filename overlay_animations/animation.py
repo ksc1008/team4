@@ -1,27 +1,32 @@
 import time
 
 from PyQt6.QtCore import QRect
+from PyQt6.QtGui import QPainter
 
-import animator
-import threading
+from overlay_animations import *
+from overlay_animations import animator
 
 
 class Animation:
 
-    def __init__(self, source, target, method, duration_ms, easing, after=None):
+    def __init__(self, source, target, method, duration_ms, easing, next_anim=None, isLoop=False, after=None):
         self.animator = None
+        self.isLoop = isLoop
         self.src = source
         self.target = target
         self.method = method
         self.duration = duration_ms
         self.elapsed = 0
         self.easing = easing
+        self.nextAnim = next_anim
         self.after = after
         self.start = time.time_ns()
 
     def finishAnim(self):
+        if self.nextAnim is not None:
+            self.animator.startAnim(self.nextAnim)
         if self.after is not None:
-            self.animator.startAnim(self.after)
+            self.after()
         self.animator.removeAnim(self)
         print('removed animation')
 
@@ -30,11 +35,17 @@ class Animation:
         t = self.easing(self.elapsed / self.duration)
         self.method(self.src, self.target, t)
         if t >= 1:
-            self.finishAnim()
+            if self.isLoop:
+                t -= 1
+            else:
+                self.finishAnim()
 
     def startAnim(self, _animator: animator.Animator):
         self.animator = _animator
         self.start = time.time_ns()
+
+    def draw(self, painter: QPainter):
+        pass
 
 
 def make_rect_anim(setter, fromRect: QRect, toRect: QRect, duration_ms, easing=None):
