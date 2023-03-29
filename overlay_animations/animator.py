@@ -18,9 +18,11 @@ class Animator(threading.Thread):
         self.animatedObjects = []
         self.onLoop = False
         self.daemon = True
+        self.shouldStop = False
 
-        self.start()
-
+    def stop(self):
+        self.shouldStop = True
+        print('stop')
     def removeAnim(self, animation):
         self.animations.remove(animation)
 
@@ -32,13 +34,15 @@ class Animator(threading.Thread):
         animation.startAnim(self)
 
     def run(self):
-        while True:
+        while not self.shouldStop:
             if len(self.animations) > 0:
                 for t in self.animations:
                     t.invoke()
                 self.window.update()
 
             time.sleep(self.interval_s)
+
+        print('ended running')
 
     def update(self, painter: QPainter):
         for a in self.animatedObjects:

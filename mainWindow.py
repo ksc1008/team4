@@ -1,7 +1,7 @@
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from PyQt6 import QtCore
+from PyQt6 import QtCore, QtGui
 
 from keyboardEvent import ShorCut
 from overlay_animations import animator
@@ -9,17 +9,8 @@ from overlay_animations import animator
 
 class MainWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, _t):
         super().__init__()
-        self.mx = 400
-        self.my = 400
-        self.drawRect = QRect(600, 600, 0, 0)
-        self.drawOpacity = 0
-
-        self.texty = 450
-        self.textOpacity = 0
-
-        self.drawOpacity = 0
 
         self.setWindowFlags(
             Qt.WindowType.WindowStaysOnTopHint |
@@ -33,6 +24,8 @@ class MainWindow(QMainWindow):
         self.shortcut = ShorCut()
         self.shortcut.start()
         self.shortcut.exit_key.connect(self.shortcut_exit_key)
+        self.animator.start()
+        self.test = _t
 
     #       오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -40,9 +33,11 @@ class MainWindow(QMainWindow):
 
         self.animator.update(painter)
 
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.test.exit(0)
+
     @pyqtSlot()
     def shortcut_exit_key(self):
-        # Test Animation 시작. animator.py 참고
         self.animator.startTestAnimation()
 
 
