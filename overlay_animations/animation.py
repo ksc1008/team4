@@ -1,7 +1,6 @@
 import time
 
 from PyQt6.QtCore import QRect
-from overlay_animations import animator
 
 
 class Animation:
@@ -24,8 +23,9 @@ class Animation:
         self.start = start
         self.end = end
 
-        # 매 프레임 animator 에서 실행할 메소드
-        # (0..1) 범위의 t 값과, 시작 값, 끝 값을 인자로 받으면 원하는 방식으로 현재 값을 보간하고, 대상 멤버에 대입하는 내용이 들어간다.
+        # 매 프레임 animator 에서 실행할 메소드.
+        # 시작 값, 끝 값, 그리고 (0..1) 범위의 t 값을 인자로 받으면 원하는 방식으로 현재 값을 보간하고,
+        # 대상 멤버에 대입하는 내용이 들어간다.
         self.method = method
 
         # Easing Method. https://easings.net/ 참고

@@ -3,6 +3,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6 import QtCore, QtGui
 
+import overlay_objects.loadingCircle
 from keyboardEvent import ShorCut
 from overlay_animations import animator
 from overlay_objects.overlayObject import OverlayObject
@@ -30,8 +31,13 @@ class MainWindow(QMainWindow):
         self.shortcut = ShorCut()
         self.shortcut.start()
         self.shortcut.exit_key.connect(self.shortcut_exit_key)
+        self.shortcut.circle_key.connect(self.shortcut_circle_key)
         self.animator.start()
         self.test = _t
+
+        self.lc = None
+
+
 
     #       오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -51,6 +57,16 @@ class MainWindow(QMainWindow):
     def shortcut_exit_key(self):
         # demo.py 참고
         self.addObject(demo.createTestObjectAndApplyAnimation(self.animator))
+
+    @pyqtSlot()
+    def shortcut_circle_key(self):             # Ctrl + E 입력 시 Loading Circle 추가 혹은 제거 
+        if self.lc is None:
+            self.lc = overlay_objects.loadingCircle.LoadingCircle()
+            self.addObject(self.lc)
+            self.animator.addAnim(self.lc.getCycleAnimation())
+        else:
+            self.lc.destroy()
+            self.lc = None
 
 
 # Create the main window
