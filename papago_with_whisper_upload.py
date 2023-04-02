@@ -82,6 +82,11 @@ def papago_etk(prompt): #파파고를 이용하여 영어를 한국어로 번역
     result = json.loads(response_body.decode('utf-8'))
     return result['message']['result']['translatedText']
 
+def create_gtts(prompt): #Google tts 함수 & 음성 재생
+    tts = gTTS(text = prompt, lang= 'ko', slow = False)
+    tts.save('sound.mp3')
+    playsound("sound.mp3")
+
 
 
 if __name__ == "__main__":
@@ -102,3 +107,6 @@ if __name__ == "__main__":
     #chatGPT 대답 한국어로 번역
     kr_answer = papago_etk(en_answer)
     print("한국어 대답 : " + kr_answer)
+
+    #Google tts
+    create_gtts(kr_answer)
