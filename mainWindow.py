@@ -7,8 +7,9 @@ import overlay_objects.loadingCircle
 from keyboardEvent import ShorCut
 from overlay_animations import animator
 from overlay_objects.overlayObject import OverlayObject
-from labelClass import Label
+from textLabel import TextLabel
 
+from pixmapLabel import PixmapLabel
 import demo
 
 
@@ -45,9 +46,8 @@ class MainWindow(QMainWindow):
         self.lc = None
         self.re = False
 
-        self.label = Label(self)
-        self.mic_image = Label(self, opacity=0)
-        self.mic_image.setImageByPixmap('images/mic_white.png', 100, 100)
+        self.label = TextLabel(self)
+        self.mic_image = PixmapLabel(self, 'images/mic_white.png')
         self.label.setTextContents(
             "세잔은 '자연은 표면보다 내부에 있다'고 말하고 정확한 묘사를 하기 위해 사과가 썩을 때까지 그렸다는 일화가 있다. 이처럼 그는 인상파의 사실주의를 추진시켜 단순한 시각적·현상적 사실에서 다시 근본적인 물체의 파악, 즉 자연의 형태가 숨기고 있는 내적 생명을 묘사하는 데 목적을 두었다.")
 
@@ -88,6 +88,8 @@ class MainWindow(QMainWindow):
             self.lc = overlay_objects.loadingCircle.LoadingCircle()
             self.addObject(self.lc)
             self.animator.addAnim(self.lc.getCycleAnimation())
+
+
         else:
             self.lc.destroy()
             self.lc = None
@@ -110,4 +112,3 @@ class MainWindow(QMainWindow):
     def shortcut_release_mic_key(self):  # Ctrl + M 때면
         print("released")
         self.mic_image.hide()
-
