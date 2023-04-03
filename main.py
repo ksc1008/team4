@@ -7,7 +7,7 @@ import mainWindow
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = mainWindow.MainWindow(app)
-    window.showFullScreen()
+    # window.showFullScreen()
 
     try:
         sys.exit(app.exec())
