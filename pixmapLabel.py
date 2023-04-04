@@ -19,14 +19,18 @@ class PixmapLabel(QLabel):
 
         self.setStyleSheet(f"background-color: rgba(0,0,0,{self.opacity});")
         self.setPixmap(self.pixmap)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.move(self.left, self.top)
+        self.resize(self.width, self.height)
 
     def movePixmap(self, left, top):
         self.left = left
         self.top = top
         self.move(self.left, self.top)
 
-    def setImageByPixmap(self, image, width, height):
-        self.pixmap = QIcon(image).pixmap(QSize(width, height))
+    def showImageByPixmap(self, image, width, height):
+        self.image = image
+        self.width = width
+        self.height = height
+        self.pixmap = QIcon(self.image).pixmap(QSize(self.width, self.height))
         self.setPixmap(self.pixmap)
-        self.resize(width, height)
+        self.resize(self.width, self.height)
