@@ -48,8 +48,7 @@ class MainWindow(QMainWindow):
 
         self.label = TextLabel(self)
         self.mic_image = PixmapLabel(self, 'images/mic_white.png')
-        self.label.setTextContents(
-            "세잔은 '자연은 표면보다 내부에 있다'고 말하고 정확한 묘사를 하기 위해 사과가 썩을 때까지 그렸다는 일화가 있다. 이처럼 그는 인상파의 사실주의를 추진시켜 단순한 시각적·현상적 사실에서 다시 근본적인 물체의 파악, 즉 자연의 형태가 숨기고 있는 내적 생명을 묘사하는 데 목적을 두었다.")
+        self.label.setTextContents("ChatGPT로 부터의 1 개의 답변.")
 
     # 오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -97,10 +96,10 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def shortcut_label_key(self):  # Ctrl + F1 입력시 label 보이기 / 숨기기
         if not self.re:
-            self.label.show()
+            self.label.pop_in(self.animator)
             self.re = True
         else:
-            self.label.hide()
+            self.label.pop_out()
             self.re = False
 
     @pyqtSlot()
@@ -112,3 +111,7 @@ class MainWindow(QMainWindow):
     def shortcut_release_mic_key(self):  # Ctrl + M 때면
         print("released")
         self.mic_image.hide()
+
+    @pyqtSlot()
+    def popUp(self):
+        pass

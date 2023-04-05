@@ -95,8 +95,13 @@ def wait(duration_ms) -> Animation:
     """
     특정 밀리초 동안 아무것도 하지 않는 애니메이션을 생성. 애니메이션 간 Delay 구현시 사용 가능.
     """
+
     def m(x1, x2, t):
         pass
 
     easing = lambda t: t
     return Animation(0, 0, m, duration_ms, easing)
+
+
+def defaultEasing(t):
+    return 1 - pow(1 - t, 5)

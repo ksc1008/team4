@@ -18,6 +18,7 @@ class ShorCut(QThread):
         self.running = True
         self.circle_pressing = False
         self.mic_pressing = False
+        self.f1_pressing = False
 
     def run(self):
         while self.running:
@@ -55,8 +56,12 @@ class ShorCut(QThread):
 
             # <Ctrl+F1> 눌리면 -> label_key
             if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x70) < 0:  # <Ctrl+F1> 입력
-                print("<Ctrl+F1> -> [label key]")
-                self.label_key.emit()
+                if not self.f1_pressing:
+                    self.label_key.emit()
+                    self.f1_pressing = True
+                    print("<Ctrl+F1> -> [label key]")
+            elif self.f1_pressing:
+                self.f1_pressing = False
 
     def stop(self):
         self.running = False
