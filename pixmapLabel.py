@@ -2,6 +2,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 
+# 마이크 출처 <a href="https://www.flaticon.com/free-icons/micro" title="micro icons">Micro icons created by Freepik - Flaticon</a>
 
 class PixmapLabel(QLabel):
     def __init__(self, parent, image=None, left=100, top=100, width=100, height=100):

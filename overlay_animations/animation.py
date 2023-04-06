@@ -2,7 +2,6 @@ import time
 
 from PyQt6.QtCore import QRect
 
-
 class Animation:
 
     def __init__(self, start, end, method, duration_ms, easing, isLoop=False, after=None):

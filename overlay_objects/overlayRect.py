@@ -16,7 +16,7 @@ class OverlayRect(OverlayObject):
         self.color = QColor(180, 60, 60)
 
     def draw(self, painter: QPainter):
-        painter.setPen(self.color)  # 공 윤곽선
+        painter.setPen(self.color)    # 공 윤곽선
         painter.setBrush(self.color)  # 공 채우기
         painter.setOpacity(self.opacity)
         painter.drawRect(self.rect)

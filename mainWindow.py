@@ -9,7 +9,8 @@ from overlay_animations import animator
 from overlay_objects.overlayObject import OverlayObject
 from textLabel import TextLabel
 
-from pixmapLabel import PixmapLabel
+import overlay_objects.overlayCircle
+import overlay_objects.overlayPixmap
 import demo
 
 
@@ -43,11 +44,15 @@ class MainWindow(QMainWindow):
         self.animator.start()
         self.test = _t
 
-        self.lc = None
         self.re = False
 
+        self.lc = None
+        self.oc = None
+        self.mp = None
+        self.sw = None
+
         self.label = TextLabel(self)
-        self.mic_image = PixmapLabel(self, 'images/mic_white.png')
+        # self.mic_image = PixmapLabel(self, 'images/mic_white.png')
         self.label.setTextContents("ChatGPT로 부터의 1 개의 답변.")
 
     # 오버라이드 할 paintEvent
@@ -85,10 +90,9 @@ class MainWindow(QMainWindow):
     def shortcut_circle_key(self):  # Ctrl + E 입력 시 Loading Circle 추가 혹은 제거
         if self.lc is None:
             self.lc = overlay_objects.loadingCircle.LoadingCircle()
+
             self.addObject(self.lc)
             self.animator.addAnim(self.lc.getCycleAnimation())
-
-
         else:
             self.lc.destroy()
             self.lc = None
@@ -105,12 +109,44 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def shortcut_mic_key(self):  # Ctrl + M 눌리면
         print("pressing")
-        self.mic_image.show()
+        mic_width = 200
+        mic_height = 200
+        if self.mp is None:
+            self.oc = overlay_objects.overlayCircle.OverlayCircle()
+            self.mp = overlay_objects.overlayPixmap.OverlayPixmap('images/mic.png')
+            self.sw = overlay_objects.overlayCircle.OverlayCircle()
+            self.addObject(self.sw)
+            self.animator.addAnim(self.sw.getWaveAnimation(self.width() / 2, self.height() * 2 / 3, mic_width, mic_height))
+
+            animC1, animC2 = self.oc.circlePopIn(self.width() / 2, self.height() * 2 / 3, mic_width, mic_height)
+            animM1, animM2 = self.mp.micPopIn(self.width() / 2, self.height() * 2 / 3, mic_width * 0.9, mic_height)
+
+            animC1.after = lambda: self.animator.addAnim(animC2)
+            animM1.after = lambda: self.animator.addAnim(animM2)
+
+            self.addObject(self.oc)
+            self.addObject(self.mp)
+
+            self.animator.addAnim(animC1)
+            self.animator.addAnim(animM1)
+
 
     @pyqtSlot()
     def shortcut_release_mic_key(self):  # Ctrl + M 때면
         print("released")
-        self.mic_image.hide()
+        if self.mp is not None:
+            self.sw.destroy()
+
+            animM1, animM2 = self.mp.micPopOut()
+            animC1, animC2 = self.oc.circlePopOut()
+            animM1.after = lambda: self.animator.addAnim(animM2)
+            animC1.after = lambda: self.animator.addAnim(animC2)
+            self.animator.addAnim(animM1)
+            self.animator.addAnim(animC1)
+
+            self.mp = None
+            self.oc = None
+            self.sw = None
 
     @pyqtSlot()
     def popUp(self):

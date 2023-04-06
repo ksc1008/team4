@@ -23,7 +23,6 @@ class ShorCut(QThread):
     def run(self):
         while self.running:
             time.sleep(0.1)
-
             # <Ctrl+Q> 눌리면 -> quit_key
             if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x51) < 0:  # <Ctrl+Q> 입력
                 print("<Ctrl+Q> -> [quit_key]")
@@ -44,6 +43,7 @@ class ShorCut(QThread):
                     print("<Ctrl+M> -> [pressing mic_key]")
                     self.mic_key.emit()
                     self.mic_pressing = True
+                    time.sleep(0.5)
             elif self.mic_pressing:
                 print("[release mic_key]")
                 self.release_mic_key.emit()

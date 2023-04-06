@@ -26,7 +26,6 @@ class LoadingCircle(OverlayObject):
         self._anim = None
 
     def draw(self, painter: QPainter):
-
         def easing(t):
             if t < 0.5:
                 return 8 * t ** 4
@@ -51,7 +50,6 @@ class LoadingCircle(OverlayObject):
     def getCycleAnimation(self):
         if self._anim is not None:
             return self._anim
-
         newTime = math.lcm(self.primaryCycleTime, self.secondaryCycleTime)
         ratio1 = newTime / self.primaryCycleTime
         ratio2 = newTime / self.secondaryCycleTime

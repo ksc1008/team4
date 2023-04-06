@@ -1,6 +1,5 @@
 import sys
 from PyQt6.QtCore import QRect
-
 from overlay_animations import animation
 from overlay_objects import overlayRect
 from overlay_animations import animator
