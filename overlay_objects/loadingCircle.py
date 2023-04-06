@@ -1,5 +1,6 @@
 import math
 
+from PyQt6.QtCore import QRectF, QPointF
 from PyQt6.QtGui import QPainter, QColor
 from overlay_objects.overlayObject import OverlayObject
 from overlay_animations.animation import Animation
@@ -9,12 +10,12 @@ class LoadingCircle(OverlayObject):
 
     def __init__(self):
         super().__init__()
-        self.opacity = 1
+        self.opacity = 0.8
         self.color = QColor(255, 255, 255)
         self.circle_count = 5
         self.circle_interval = 0.045
         self.circle_delay = 0.05
-        self.pos = [50, 50]
+        self.pos = QPointF(50, 50)
         self.radius = 30
         self.dot_size = 6
 
@@ -25,6 +26,14 @@ class LoadingCircle(OverlayObject):
 
         self._anim = None
 
+    def setGeometry(self, left, top, radius, size):
+        ratio = size/self.dot_size
+        self.pos = QPointF(left, top)
+        self.radius = radius
+        self.dot_size = size
+
+        self.circle_interval *= ratio
+
     def draw(self, painter: QPainter):
         def easing(t):
             if t < 0.5:
@@ -32,7 +41,7 @@ class LoadingCircle(OverlayObject):
             else:
                 return 1 - ((-2 * t + 2) ** 4) / 2
 
-        painter.opacity = self.opacity
+        painter.setOpacity(self.opacity)
         painter.setPen(self.color)  # 공 윤곽선
         painter.setBrush(self.color)  # 공 채우기
 
@@ -41,11 +50,13 @@ class LoadingCircle(OverlayObject):
             if x1 > 1.0:
                 x1 -= 1.0
             num = (easing(x1) + 0.25 + self.circle_interval * i + self.secondaryT) * 2 * math.pi
-            x = self.radius * math.cos(num) + self.radius - self.dot_size / 2
-            y = self.radius * math.sin(num) + self.radius - self.dot_size / 2
+            x = self.radius * math.cos(num)
+            y = self.radius * math.sin(num)
+
+            newPos = QPointF(x, y) + self.pos
 
             # Draw
-            painter.drawEllipse(int(x) + self.pos[0], int(y) + self.pos[1], self.dot_size, self.dot_size)
+            painter.drawEllipse(newPos, self.dot_size, self.dot_size)
 
     def getCycleAnimation(self):
         if self._anim is not None:

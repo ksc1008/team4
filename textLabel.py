@@ -30,14 +30,6 @@ class TextLabel(QLabel):
                            )
 
         self.setWordWrap(True)
-        shadow = QGraphicsDropShadowEffect()
-
-        # setting blur radius
-        shadow.setBlurRadius(15)
-        shadow.setColor(QColor(0, 0, 0))
-
-        # adding shadow to the label
-        self.setGraphicsEffect(shadow)
 
         self.startAnim = None
 

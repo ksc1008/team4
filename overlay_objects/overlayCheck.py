@@ -11,19 +11,19 @@ from overlay_animations.animation import Animation
 
 class OverlayCheck(OverlayObject):
 
-    def __init__(self):
+    def __init__(self, x, y):
         super().__init__()
         self.opacity = 1
-        self.color = QColor(0, 255, 0)
-        self.pos = QPointF(50, 50)
-        self.size = 1.5
+        self.color = QColor(255, 255, 255)
+        self.pos = QPointF(x, y)
+        self.size = 1
 
-        self.path1from = QPointF(0, 20)
-        self.path1to = QPointF(20, 40)
-        self.path1final = QPointF(20, 40)
-        self.path2from = QPointF(20, 40)
-        self.path2to = QPointF(50, 0)
-        self.path2final = QPointF(50, 0)
+        self.path1from = QPointF(-25, 0)
+        self.path1to = QPointF(-25, 0)
+        self.path1final = QPointF(-5, 20)
+        self.path2from = QPointF(-5, 20)
+        self.path2to = QPointF(-5, 20)
+        self.path2final = QPointF(25, -20)
         self.penWidth = 12
 
         self.drawPath2 = False
@@ -51,11 +51,11 @@ class OverlayCheck(OverlayObject):
     def removeAnim(self):
         self._anim = None
 
-    def getAnimation(self):
-        path1 = self.path1from - self.path1to
+    def getPopinAnimation(self):
+        path1 = self.path1from - self.path1final
         path1len = math.sqrt(pow(path1.x(), 2) + pow(path1.y(), 2))
 
-        path2 = self.path2from - self.path2to
+        path2 = self.path2from - self.path2final
         path2len = math.sqrt(pow(path2.x(), 2) + pow(path2.y(), 2))
 
         ratio = path1len / (path1len + path2len)
@@ -72,6 +72,28 @@ class OverlayCheck(OverlayObject):
         self._anim = anim
 
         return anim
+
+    def getPopoutAnimation(self):
+        path1 = self.path1from - self.path1final
+        path1len = math.sqrt(pow(path1.x(), 2) + pow(path1.y(), 2))
+
+        path2 = self.path2from - self.path2final
+        path2len = math.sqrt(pow(path2.x(), 2) + pow(path2.y(), 2))
+
+        ratio = path1len / (path1len + path2len)
+        setter = lambda x: self.setPath(1-x, ratio)
+
+        def easeinoutquart(x):
+            if x < 0.5:
+                return 8 * x * x * x * x
+            else:
+                return 1 - pow(-2 * x + 2, 4) / 2
+
+        anim = animation.make_var_anim(setter, 0, 1, 200, easeinoutquart)
+        anim.after = self.removeAnim
+
+        return anim
+
 
     def destroy(self):
         if self._anim is not None:

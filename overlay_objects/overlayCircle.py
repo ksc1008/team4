@@ -8,8 +8,8 @@ class OverlayCircle(OverlayObject):
     def __init__(self):
         super().__init__()
         self.circle = QRect()
-        self.outline = QColor(0, 0, 0, 0)
-        self.color = QColor(0, 0, 0, 0)
+        self.outline = QColor(255, 255, 255, 128)
+        self.color = QColor(255, 255, 255, 128)
         self.left = 0
         self.top = 0
         self.radius = 0
@@ -47,9 +47,9 @@ class OverlayCircle(OverlayObject):
     def circlePopIn(self, left, top, width, height):
         if self._anim is not None:
             return self._anim
-        self.color = QColor(255, 255, 255, 128)
-        self.outline = QColor(255, 255, 255, 128)
-        self.setColor(self.color, self.outline)
+        #self.color = QColor(255, 255, 255, 128)
+        #self.outline = QColor(255, 255, 255, 128)
+        #self.setColor(self.color, self.outline)
 
         leftS = left
         topS = top

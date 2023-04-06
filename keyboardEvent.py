@@ -33,6 +33,7 @@ class ShorCut(QThread):
             # <Ctrl+E> 눌리면 -> circle_key
             if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x45) < 0:  # <Ctrl+E> 입력
                 if not self.circle_pressing:
+                    print("<Ctrl+E> -> [circle key]")
                     self.circle_key.emit()
                     self.circle_pressing = True
             elif self.circle_pressing:
