@@ -1,6 +1,7 @@
 import time
 
-from PyQt6.QtCore import QRect
+from PyQt6.QtCore import QRect, QRectF
+
 
 class Animation:
 
@@ -70,6 +71,22 @@ def make_rect_anim(setter, fromRect: QRect, toRect: QRect, duration_ms, easing=N
         easing = lambda t: (1 - pow(1 - t, 5))
 
     method = lambda r1, r2, t: (setter(QRect(
+        (1 - t) * r1.topLeft() + t * r2.topLeft(),
+        (1 - t) * r1.bottomRight() + t * r2.bottomRight())
+    ))
+
+    return Animation(fromRect, toRect, method, duration_ms, easing)
+
+def make_rect_animF(setter, fromRect: QRectF, toRect: QRectF, duration_ms, easing=None) -> Animation:
+    """
+    QRect의 크기 및 위치를 변형하는 애니메이션을 생성하는 메소드
+
+    :param setter: 대상 QRect를 변경하는 setter.
+    """
+    if easing is None:
+        easing = lambda t: (1 - pow(1 - t, 5))
+
+    method = lambda r1, r2, t: (setter(QRectF(
         (1 - t) * r1.topLeft() + t * r2.topLeft(),
         (1 - t) * r1.bottomRight() + t * r2.bottomRight())
     ))

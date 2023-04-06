@@ -27,12 +27,10 @@ class LoadingCircle(OverlayObject):
         self._anim = None
 
     def setGeometry(self, left, top, radius, size):
-        ratio = size/self.dot_size
         self.pos = QPointF(left, top)
         self.radius = radius
         self.dot_size = size
 
-        self.circle_interval *= ratio
 
     def draw(self, painter: QPainter):
         def easing(t):

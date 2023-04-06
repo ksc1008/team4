@@ -13,6 +13,7 @@ class ShorCut(QThread):
     demo_key = pyqtSignal()
     label_key = pyqtSignal()
     check_key = pyqtSignal()
+    show_content_key = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -21,6 +22,7 @@ class ShorCut(QThread):
         self.mic_pressing = False
         self.f1_pressing = False
         self.f2_pressing = False
+        self.f3_pressing = False
 
     def run(self):
         while self.running:
@@ -52,20 +54,7 @@ class ShorCut(QThread):
                 self.release_mic_key.emit()
                 self.mic_pressing = False
 
-            # <Ctrl+D> 눌리면 -> demo_key
-            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x44) < 0:  # <Ctrl+D> 입력
-                print("<Ctrl+D> -> [Demo key]")
-                self.demo_key.emit()
-
-            # <Ctrl+F1> 눌리면 -> label_key
-            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x70) < 0:  # <Ctrl+F1> 입력
-                if not self.f1_pressing:
-                    self.label_key.emit()
-                    self.f1_pressing = True
-                    print("<Ctrl+F1> -> [label key]")
-            elif self.f1_pressing:
-                self.f1_pressing = False
-
+            # <Ctrl+F2> 눌리면 -> check_key
             if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x71) < 0:  # <Ctrl+F2> 입력
                 if not self.f2_pressing:
                     self.check_key.emit()
@@ -73,6 +62,29 @@ class ShorCut(QThread):
                     print("<Ctrl+F2> -> [check key]")
             elif self.f2_pressing:
                 self.f2_pressing = False
+
+            # <Ctrl+F2> 눌리면 -> check_key
+            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x72) < 0:  # <Ctrl+F3> 입력
+                if not self.f3_pressing:
+                    self.show_content_key.emit()
+                    self.f3_pressing = True
+                    print("<Ctrl+F3> -> [show content key]")
+            elif self.f3_pressing:
+                self.f3_pressing = False
+
+            # <Ctrl+D> 눌리면 -> demo_key
+            #if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x44) < 0:  # <Ctrl+D> 입력
+            #    print("<Ctrl+D> -> [Demo key]")
+            #    self.demo_key.emit()
+
+            # <Ctrl+F1> 눌리면 -> label_key
+            #if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x70) < 0:  # <Ctrl+F1> 입력
+            #    if not self.f1_pressing:
+            #        self.label_key.emit()
+            #        self.f1_pressing = True
+            #        print("<Ctrl+F1> -> [label key]")
+            #elif self.f1_pressing:
+            #    self.f1_pressing = False
 
     def stop(self):
         self.running = False

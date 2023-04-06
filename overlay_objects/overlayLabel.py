@@ -9,13 +9,15 @@ from overlay_animations import animation
 
 
 class OverlayLabel(OverlayObject):
-    def __init__(self, text: str):
+    def __init__(self, text: str, isContent=False):
         super().__init__()
+        self.defaultFontFamily = 'Wingdings'  # just in case
         self.circle = QRect()
         self.outline = QColor(0, 0, 0, 255)
         self.color = QColor(0, 0, 0, 255)
         self.textColor = QColor(255, 255, 255, 255)
         self.manualColor = QColor(255, 255, 255, 150)
+        self.isContent = isContent
 
         self.boxWidth = 450
         self.boxHeight = 85
@@ -31,14 +33,18 @@ class OverlayLabel(OverlayObject):
         self.textOpacity = 1
         self.manualOpacity = 1
 
-        self.rect = QRectF(0, 0, 0, 0)
+        self.rect: QRectF = QRectF(0, 0, 0, 0)
 
         self.text = text
 
         self.pop_t: int = 300
         self.exp_t: int = 100
         self.delay: int = 50
-        self.wrapMode = PyQt6.QtGui.QTextOption.WrapMode.NoWrap
+        self.wrapMode = PyQt6.QtGui.QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere if isContent \
+            else PyQt6.QtGui.QTextOption.WrapMode.NoWrap
+
+        self.align = PyQt6.QtCore.Qt.AlignmentFlag.AlignLeft if isContent \
+            else PyQt6.QtCore.Qt.AlignmentFlag.AlignHCenter
 
         self._anims = []
 
@@ -47,39 +53,44 @@ class OverlayLabel(OverlayObject):
         painter.setPen(self.outline)
         painter.setBrush(self.color)
 
+        opt = PyQt6.QtGui.QTextOption()
+        opt.setWrapMode(self.wrapMode)
+        opt.setAlignment(self.align)
+        font = QFont(['Roboto', self.defaultFontFamily], self.fontSize, weight=400)
+        newRect = QRectF(5 + self.rect.left(), 15 + self.rect.top(), self.rect.width() - 10, self.rect.height() - 20)
+
+        painter.setFont(font)
+
         path = QPainterPath()
-        path.addRoundedRect(self.rect, 10, 10)
+
+        if self.isContent:
+            bRect = painter.boundingRect(newRect, self.text, opt)
+            bRect.adjust(-10,-10,10,10)
+            path.addRoundedRect(bRect, 10, 10)
+        else:
+            path.addRoundedRect(self.rect, 10, 10)
         painter.drawPath(path)
 
         painter.setOpacity(self.textOpacity)
-        font = QFont([mainWindow.MainWindow.roboto_fonts[0], 'Arial'], self.fontSize, weight=400)
-        opt = PyQt6.QtGui.QTextOption()
-        opt.setWrapMode(self.wrapMode)
-        opt.setAlignment(PyQt6.QtCore.Qt.AlignmentFlag.AlignHCenter)
-
-        painter.setFont(font)
         painter.setPen(self.textColor)
-        self.rect.adjust(5, 15, -5, -5)
-        painter.drawText(self.rect, self.text, opt)
+        painter.drawText(newRect, self.text, opt)
 
-        bound = painter.boundingRect(self.rect, self.text, opt)
+        if not self.isContent:
+            self.drawManual(painter, newRect)
 
-        self.drawManual(painter)
-
-    def drawManual(self, painter):
+    def drawManual(self, painter, newRect):
         painter.setOpacity(self.manualOpacity)
         opt = PyQt6.QtGui.QTextOption()
         opt.setWrapMode(self.wrapMode)
         opt.setAlignment(PyQt6.QtCore.Qt.AlignmentFlag.AlignBottom | PyQt6.QtCore.Qt.AlignmentFlag.AlignRight)
-        font = QFont([mainWindow.MainWindow.roboto_fonts[1], 'Arial'], self.manualFontSize, weight=300)
+        font = QFont(['Roboto', self.defaultFontFamily], self.manualFontSize, weight=300)
         painter.setFont(font)
         painter.setPen(self.manualColor)
 
         opt.setAlignment(PyQt6.QtCore.Qt.AlignmentFlag.AlignBottom | PyQt6.QtCore.Qt.AlignmentFlag.AlignLeft)
-        painter.drawText(self.rect, self.manualLeft, opt)
+        painter.drawText(newRect, self.manualLeft, opt)
         opt.setAlignment(PyQt6.QtCore.Qt.AlignmentFlag.AlignBottom | PyQt6.QtCore.Qt.AlignmentFlag.AlignRight)
-        painter.drawText(self.rect, self.manualRight, opt)
-        self.rect.adjust(-5, -15, 5, 5)
+        painter.drawText(newRect, self.manualRight, opt)
 
     def setColor(self, color: QColor, outline: QColor):
         self.color = color
@@ -104,7 +115,25 @@ class OverlayLabel(OverlayObject):
     def removeAnim(self, anim):
         self._anims.remove(anim)
 
-    def getOpenAnimation(self, delay_until_close):
+    def getContentOpenAnimation(self):
+
+        def setAllOpacity(t):
+            self.opacity = t
+            self.textOpacity = t+0.2
+
+        start = QRectF(self.rect.left(),
+                       self.rect.top()+10, self.rect.width(), self.rect.height())
+        end = self.rect
+        anim = animation.make_rect_animF(self.setRect, start, end, 500)
+        anim2 = animation.make_var_anim(setAllOpacity, 0, 0.8, 500)
+
+        anim.after = lambda: self.removeAnim(anim)
+        anim2.after = lambda: self.removeAnim(anim2)
+        self._anims.append(anim)
+        self._anims.append(anim2)
+        return anim, anim2
+
+    def getResponseOpenAnimation(self, delay_until_close):
         sz = self.fontSize
 
         def setTextOpacity(o):
@@ -127,14 +156,14 @@ class OverlayLabel(OverlayObject):
         firstAnim = animation.make_var_anim(setter, 0, self.boxWidth, 1000, easeinoutquart)
 
         w2 = animation.wait(delay_until_close)
-        w2.after = lambda: [w2.animator.addAnim(self.getCloseAnimation()), self.removeAnim(w2)]
+        w2.after = lambda: [w2.animator.addAnim(self.getResponseCloseAnimation()), self.removeAnim(w2)]
 
         firstAnim.after = lambda: [self.removeAnim(firstAnim), firstAnim.animator.addAnim(w2), addAnim(w2)]
         addAnim(firstAnim)
 
         return firstAnim
 
-    def getCloseAnimation(self):
+    def getResponseCloseAnimation(self):
 
         def setTextOpacity(o):
             self.textOpacity = o
