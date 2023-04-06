@@ -26,7 +26,6 @@ class OverlayCircle(OverlayObject):
         painter.setOpacity(self.opacity)
         painter.setPen(self.outline)
         painter.setBrush(self.color)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         painter.drawEllipse(self.circle)
 
@@ -125,11 +124,11 @@ class OverlayCircle(OverlayObject):
         )), self.setOpacity(1-t)]
 
 
-        easing = lambda t: (1-pow(1-(t%1),3))
+        easing = lambda t: (1-pow(1-t,3))
 
         newAnim = animation.Animation(QRect(int(leftT), int(topT), int(width), int(height)),
                                     QRect(int(left - widthE / 2), int(top - heightE / 2), int(widthE), int(heightE)),
-                                      method, newTime, easing)
+                                      method, newTime, easing, True)
 
         self._anim = newAnim
 

@@ -11,6 +11,7 @@ from textLabel import TextLabel
 
 import overlay_objects.overlayCircle
 import overlay_objects.overlayPixmap
+import overlay_objects.overlayCheck
 import demo
 
 
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
         self.shortcut = ShorCut()
         self.shortcut.start()
         self.shortcut.quit_key.connect(self.shortcut_quit_key)
-        self.shortcut.circle_key.connect(self.shortcut_circle_key)
+        self.shortcut.check_key.connect(self.shortcut_check_key)
         self.shortcut.demo_key.connect(self.shortcut_demo_key)
         self.shortcut.label_key.connect(self.shortcut_label_key)
         self.shortcut.mic_key.connect(self.shortcut_mic_key)
@@ -50,6 +51,7 @@ class MainWindow(QMainWindow):
         self.oc = None
         self.mp = None
         self.sw = None
+        self.check = None
 
         self.label = TextLabel(self)
         # self.mic_image = PixmapLabel(self, 'images/mic_white.png')
@@ -58,6 +60,7 @@ class MainWindow(QMainWindow):
     # 오버라이드 할 paintEvent
     def paintEvent(self, event=None):
         painter = QPainter(self)
+        painter.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
 
         for o in self.objects:
             o.draw(painter)
@@ -96,6 +99,16 @@ class MainWindow(QMainWindow):
         else:
             self.lc.destroy()
             self.lc = None
+    @pyqtSlot()
+    def shortcut_check_key(self):  # Ctrl + E 입력 시 Loading Circle 추가 혹은 제거
+        if self.check is None:
+            self.check = overlay_objects.overlayCheck.OverlayCheck()
+
+            self.addObject(self.check)
+            self.animator.addAnim(self.check.getAnimation())
+        else:
+            self.check.destroy()
+            self.check = None
 
     @pyqtSlot()
     def shortcut_label_key(self):  # Ctrl + F1 입력시 label 보이기 / 숨기기

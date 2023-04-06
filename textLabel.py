@@ -54,8 +54,8 @@ class TextLabel(QLabel):
         print(str.format('rgba({0},{1},{2},{3})', color.red(), color.green(), color.blue(), color.alpha()))
         return str.format('rgba({0},{1},{2},{3})', color.red(), color.green(), color.blue(), color.alpha())
 
-    def setFontAlpha(self, alpha):
-        self.color.setAlpha(alpha)
+    def setFontAlpha(self, alpha: float):
+        self.color.setAlpha(int(alpha))
 
     def setBgAlpha(self, alpha):
         self.opacity = alpha

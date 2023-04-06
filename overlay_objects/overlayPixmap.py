@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QPainter, QPixmap
+from PyQt6.QtGui import QPainter, QPixmap, QIcon
 from PyQt6.QtCore import QRect
 from PyQt6 import QtSvg
 from overlay_animations import animation
@@ -14,6 +14,8 @@ class OverlayPixmap(OverlayObject):
         self.height = 0
         self.image_path = image_path
         self.pixmap = QPixmap(self.image_path)
+        self.ico: QIcon = QIcon()
+        self.ico.addPixmap(self.pixmap)
         self.rect = QRect(0, 0, 0, 0)
         self.opacity = 1
         self.expand = 1.2
@@ -23,10 +25,9 @@ class OverlayPixmap(OverlayObject):
         self.delay: int = 50
 
     def draw(self, painter: QPainter):
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing,True)
-        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform,True)
         painter.setOpacity(self.opacity)
-        painter.drawPixmap(self.rect, self.pixmap)
+        self.ico.paint(painter, self.rect)
+        #painter.drawPixmap(self.rect, self.pixmap)
 
     def setRect(self, target_rect: QRect):
         self.rect = target_rect

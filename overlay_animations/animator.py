@@ -14,7 +14,7 @@ class Animator(threading.Thread):
     def __init__(self, window: QMainWindow):
         super(Animator, self).__init__()
         self.window = window
-        self.interval_s = 1 / 144
+        self.interval_s = 1 / 1000
         self.time_elapsed = 0.0
         self.animations = []
         self.onLoop = False

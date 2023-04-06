@@ -49,9 +49,9 @@ class Animation:
         self.elapsed = (time.time_ns() - self.startTime) / 1000000
         t = self.easing(self.elapsed / self.duration)
         self.method(self.start, self.end, t)
-        if t >= 1:
+        if self.elapsed >= self.duration:
             if self.isLoop:
-                t -= 1
+                self.startTime += self.duration * 1000000
             else:
                 self.finishAnim()
 

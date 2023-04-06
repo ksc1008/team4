@@ -12,6 +12,7 @@ class ShorCut(QThread):
     release_mic_key = pyqtSignal()
     demo_key = pyqtSignal()
     label_key = pyqtSignal()
+    check_key = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -19,6 +20,7 @@ class ShorCut(QThread):
         self.circle_pressing = False
         self.mic_pressing = False
         self.f1_pressing = False
+        self.f2_pressing = False
 
     def run(self):
         while self.running:
@@ -62,6 +64,14 @@ class ShorCut(QThread):
                     print("<Ctrl+F1> -> [label key]")
             elif self.f1_pressing:
                 self.f1_pressing = False
+
+            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x71) < 0:  # <Ctrl+F2> 입력
+                if not self.f2_pressing:
+                    self.check_key.emit()
+                    self.f2_pressing = True
+                    print("<Ctrl+F2> -> [check key]")
+            elif self.f2_pressing:
+                self.f2_pressing = False
 
     def stop(self):
         self.running = False
