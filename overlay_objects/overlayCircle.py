@@ -14,6 +14,7 @@ class OverlayCircle(OverlayObject):
         self.top = 0
         self.radius = 0
         self.expand = 1.1
+        self.opacity = 1
 
         self.pop_t: int = 300
         self.exp_t: int = 100
@@ -22,6 +23,7 @@ class OverlayCircle(OverlayObject):
         self._anim = None
 
     def draw(self, painter: QPainter):
+        painter.setOpacity(self.opacity)
         painter.setPen(self.outline)
         painter.setBrush(self.color)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -34,6 +36,9 @@ class OverlayCircle(OverlayObject):
     def setColor(self, color: QColor, outline: QColor):
         self.color = color
         self.outline = outline
+
+    def setOpacity(self, opacity):
+        self.opacity = opacity
 
     def setGeometry(self, left, top, width):
         self.left = left
@@ -114,12 +119,13 @@ class OverlayCircle(OverlayObject):
 
         newTime = 1000
 
-        method = lambda r1, r2, t: (self.setCircle(QRect(
+        method = lambda r1, r2, t: [(self.setCircle(QRect(
             (1 - t) * r1.topLeft() + t * r2.topLeft(),
             (1 - t) * r1.bottomRight() + t * r2.bottomRight())
-        ))
+        )), self.setOpacity(1-t)]
 
-        easing = lambda t: t if t < 1 else t % 1
+
+        easing = lambda t: (1-pow(1-(t%1),3))
 
         newAnim = animation.Animation(QRect(int(leftT), int(topT), int(width), int(height)),
                                     QRect(int(left - widthE / 2), int(top - heightE / 2), int(widthE), int(heightE)),

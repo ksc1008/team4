@@ -13,7 +13,7 @@ class PixmapLabel(QLabel):
         self.height = height
         self.image = image
 
-        self.pixmap = QIcon(self.image).pixmap(QSize(self.width, self.height))
+        self.pixmap: QPixmap = QIcon(self.image).pixmap(QSize(self.width, self.height))
 
         self.bg_color = None
         self.opacity = 0

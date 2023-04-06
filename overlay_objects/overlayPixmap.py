@@ -23,7 +23,8 @@ class OverlayPixmap(OverlayObject):
         self.delay: int = 50
 
     def draw(self, painter: QPainter):
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing,True)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform,True)
         painter.setOpacity(self.opacity)
         painter.drawPixmap(self.rect, self.pixmap)
 
