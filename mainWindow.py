@@ -1,3 +1,4 @@
+import PyQt6
 from PyQt6.QtCore import *
 from PyQt6.QtGui import QFontDatabase, QPainter, QColor, QFont
 from PyQt6.QtWidgets import *
@@ -47,8 +48,8 @@ class MainWindow(QMainWindow):
         self.shortcut = ShorCut()
         self.shortcut.start()
 
-        self.shortcut.circle_key.connect(self.shortcut_circle_key)              # disabled
-        self.shortcut.check_key.connect(self.shortcut_check_key)                # disabled
+        self.shortcut.circle_key.connect(self.shortcut_circle_key)  # disabled
+        self.shortcut.check_key.connect(self.shortcut_check_key)  # disabled
 
         self.shortcut.quit_key.connect(self.shortcut_quit_key)
         self.shortcut.show_content_key.connect(self.shortcut_content_key)
@@ -168,8 +169,10 @@ class MainWindow(QMainWindow):
     def shortcut_copy_key(self):
         if MainWindow.response is not None:
             pyperclip.copy(MainWindow.response)
+            self.popBalloon('Copied!', QColor(80, 200, 120, 200))
         else:
             print('no answer from gpt.')
+            self.popBalloon('Nothing to copy', QColor(0xcc, 0, 0, 200))
 
     @pyqtSlot(str)
     def on_message_arrived(self, data):
@@ -201,6 +204,34 @@ class MainWindow(QMainWindow):
                                 self.animator.addAnim(popinAnim)]
         self.addObject(cc)
         self.animator.addAnim(animC1)
+
+    def popBalloon(self, text, back_color, duration=1000, font_color=QColor(255, 255, 255, 255)):
+        ol = OverlayLabel(text, True)
+        ol.setGeometry(self.width() / 2, self.height() / 6)
+        ol.setRect(QRectF(self.width() / 2 - 225, self.height() / 6 - 43, 450, 150))
+        ol.align = PyQt6.QtCore.Qt.AlignmentFlag.AlignHCenter
+        ol.textColor = font_color
+        ol.color = back_color
+        ol.outline = back_color
+        ol.textOpacity = 0
+        ol.opacity = 0
+
+        ol.font = QFont(['Roboto', ol.defaultFontFamily], ol.fontSize, weight=700)
+
+        a1, a2 = ol.getContentOpenAnimation()
+
+        self.addObject(ol)
+        wait = animation.wait(duration)
+        def after():
+            a3, a4 = ol.getFadeoutAnimation()
+            self.animator.addAnim(a3)
+            self.animator.addAnim(a4)
+
+        wait.after = after
+        a2.after = lambda: [ol.removeAnim(a2), self.animator.addAnim(wait)]
+        self.animator.addAnim(a1)
+        self.animator.addAnim(a2)
+
 
     def popCheckOut(self, cc, check):
         cc.pop_t = 300

@@ -12,7 +12,6 @@ class OverlayLabel(OverlayObject):
     def __init__(self, text: str, isContent=False):
         super().__init__()
         self.defaultFontFamily = 'Wingdings'  # just in case
-        self.circle = QRect()
         self.outline = QColor(0, 0, 0, 255)
         self.color = QColor(0, 0, 0, 255)
         self.textColor = QColor(255, 255, 255, 255)
@@ -36,6 +35,7 @@ class OverlayLabel(OverlayObject):
         self.rect: QRectF = QRectF(0, 0, 0, 0)
 
         self.text = text
+        self.font = QFont(['Roboto', self.defaultFontFamily], self.fontSize, weight=400)
 
         self.pop_t: int = 300
         self.exp_t: int = 100
@@ -56,7 +56,7 @@ class OverlayLabel(OverlayObject):
         opt = PyQt6.QtGui.QTextOption()
         opt.setWrapMode(self.wrapMode)
         opt.setAlignment(self.align)
-        font = QFont(['Roboto', self.defaultFontFamily], self.fontSize, weight=400)
+        font = self.font
         newRect = QRectF(5 + self.rect.left(), 15 + self.rect.top(), self.rect.width() - 10, self.rect.height() - 20)
 
         painter.setFont(font)
@@ -65,7 +65,7 @@ class OverlayLabel(OverlayObject):
 
         if self.isContent:
             bRect = painter.boundingRect(newRect, self.text, opt)
-            bRect.adjust(-10,-10,10,10)
+            bRect.adjust(-10, -10, 10, 10)
             path.addRoundedRect(bRect, 10, 10)
         else:
             path.addRoundedRect(self.rect, 10, 10)
@@ -119,10 +119,10 @@ class OverlayLabel(OverlayObject):
 
         def setAllOpacity(t):
             self.opacity = t
-            self.textOpacity = t+0.2
+            self.textOpacity = t + 0.2
 
         start = QRectF(self.rect.left(),
-                       self.rect.top()+10, self.rect.width(), self.rect.height())
+                       self.rect.top() + 10, self.rect.width(), self.rect.height())
         end = self.rect
         anim = animation.make_rect_animF(self.setRect, start, end, 500)
         anim2 = animation.make_var_anim(setAllOpacity, 0, 0.8, 500)
@@ -133,9 +133,26 @@ class OverlayLabel(OverlayObject):
         self._anims.append(anim2)
         return anim, anim2
 
-    def getResponseOpenAnimation(self, delay_until_close):
-        sz = self.fontSize
+    def getFadeoutAnimation(self):
+        def setAllOpacity(t):
+            self.opacity = t
+            self.textOpacity = t + 0.2
 
+        easing = lambda x: 0 if x == 0 else pow(2, 10 * x - 10)
+        start = self.rect
+        end = QRectF(self.rect.left(),
+                     self.rect.top() - 20, self.rect.width(), self.rect.height())
+
+        anim = animation.make_rect_animF(self.setRect, start, end, 800, easing)
+        anim2 = animation.make_var_anim(setAllOpacity, 0.8, 0, 700, easing)
+
+        anim.after = lambda: [self.removeAnim(anim), self.destroy()]
+        anim2.after = lambda: self.removeAnim(anim2)
+        self._anims.append(anim)
+        self._anims.append(anim2)
+        return anim, anim2
+
+    def getResponseOpenAnimation(self, delay_until_close):
         def setTextOpacity(o):
             self.textOpacity = o
             self.manualOpacity = o

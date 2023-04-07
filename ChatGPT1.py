@@ -27,7 +27,7 @@ from keyboardEvent import ShorCut
 q = queue.Queue()
 
 os.makedirs("history", exist_ok=True)  # history 폴더 생성
-#os.environ['OPENAI_API_KEY'] = '(Enter Key Here!)'  # 환경변수에 API_KEY값 지정
+# os.environ['OPENAI_API_KEY'] = '(Enter Key Here!)'  # 환경변수에 API_KEY값 지정
 openai.api_key = os.getenv("OPENAI_API_KEY")
 #
 messages = [
@@ -179,38 +179,38 @@ class Producer(QThread):
                 except openai.error.Timeout as e:
                     # Handle timeout error, e.g. retry or log
                     msg = f"OpenAI API request timed out: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
 
                     pass
                 except openai.error.APIError as e:
                     # Handle API error, e.g. retry or log
                     msg = f"OpenAI API returned an API Error: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
                     pass
                 except openai.error.APIConnectionError as e:
                     # Handle connection error, e.g. check network or log
                     msg = f"OpenAI API request failed to connect: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
                     pass
                 except openai.error.InvalidRequestError as e:
                     # Handle invalid request error, e.g. validate parameters or log
                     msg = f"OpenAI API request was invalid: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
                     pass
                 except openai.error.AuthenticationError as e:
                     # Handle authentication error, e.g. check credentials or log
                     msg = f"OpenAI API request was not authorized: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
                     pass
                 except openai.error.PermissionError as e:
                     # Handle permission error, e.g. check scope or log
                     msg = f"OpenAI API request was not permitted: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
                     pass
                 except openai.error.RateLimitError as e:
                     # Handle rate limit error, e.g. wait or log
                     msg = f"OpenAI API request exceeded rate limit: {e}"
-                    self.shortcut.throwError.emit(msg)
+                    self.shortcut.throw_error.emit(msg)
                     pass
 
 
@@ -244,42 +244,43 @@ class WhisperWorker(QThread):
                     prompt = whisper_api(audio)
                     if len(prompt):
                         self.prompt_que.put(prompt)
+                    else:
+                        self.shortcut.throw_error.emit('No prompt found. Please try again.')
                 except openai.error.Timeout as e:
-                  #Handle timeout error, e.g. retry or log
-                  msg = f"OpenAI API request timed out: {e}"
-                  self.shortcut.throwError.emit(msg)
-
-                  pass
+                    # Handle timeout error, e.g. retry or log
+                    msg = f"OpenAI API request timed out: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
                 except openai.error.APIError as e:
-                  #Handle API error, e.g. retry or log
-                  msg = f"OpenAI API returned an API Error: {e}"
-                  self.shortcut.throwError.emit(msg)
-                  pass
+                    # Handle API error, e.g. retry or log
+                    msg = f"OpenAI API returned an API Error: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
                 except openai.error.APIConnectionError as e:
-                  #Handle connection error, e.g. check network or log
-                  msg = f"OpenAI API request failed to connect: {e}"
-                  self.shortcut.throwError.emit(msg)
-                  pass
+                    # Handle connection error, e.g. check network or log
+                    msg = f"OpenAI API request failed to connect: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
                 except openai.error.InvalidRequestError as e:
-                  #Handle invalid request error, e.g. validate parameters or log
-                  msg = f"OpenAI API request was invalid: {e}"
-                  self.shortcut.throwError.emit(msg)
-                  pass
+                    # Handle invalid request error, e.g. validate parameters or log
+                    msg = f"OpenAI API request was invalid: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
                 except openai.error.AuthenticationError as e:
-                  #Handle authentication error, e.g. check credentials or log
-                  msg = f"OpenAI API request was not authorized: {e}"
-                  self.shortcut.throwError.emit(msg)
-                  pass
+                    # Handle authentication error, e.g. check credentials or log
+                    msg = f"OpenAI API request was not authorized: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
                 except openai.error.PermissionError as e:
-                  #Handle permission error, e.g. check scope or log
-                  msg = f"OpenAI API request was not permitted: {e}"
-                  self.shortcut.throwError.emit(msg)
-                  pass
+                    # Handle permission error, e.g. check scope or log
+                    msg = f"OpenAI API request was not permitted: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
                 except openai.error.RateLimitError as e:
-                  #Handle rate limit error, e.g. wait or log
-                  msg = f"OpenAI API request exceeded rate limit: {e}"
-                  self.shortcut.throwError.emit(msg)
-                  pass
+                    # Handle rate limit error, e.g. wait or log
+                    msg = f"OpenAI API request exceeded rate limit: {e}"
+                    self.shortcut.throw_error.emit(msg)
+                    pass
 
 
 class MyWindow(QObject):

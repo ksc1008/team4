@@ -20,8 +20,6 @@ class OverlayCircle(OverlayObject):
         self.exp_t: int = 100
         self.delay: int = 50
 
-        self.t = 0
-
         self._anim = None
 
     def draw(self, painter: QPainter):
@@ -34,8 +32,6 @@ class OverlayCircle(OverlayObject):
     def setCircle(self, circle: QRect):
         self.circle = circle
 
-        print(str.format('setting! {0}', self.t))
-        self.t += 1
 
     def setColor(self, color: QColor, outline: QColor):
         self.color = color
