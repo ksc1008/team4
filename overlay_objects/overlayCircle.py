@@ -20,6 +20,8 @@ class OverlayCircle(OverlayObject):
         self.exp_t: int = 100
         self.delay: int = 50
 
+        self.t = 0
+
         self._anim = None
 
     def draw(self, painter: QPainter):
@@ -31,6 +33,9 @@ class OverlayCircle(OverlayObject):
 
     def setCircle(self, circle: QRect):
         self.circle = circle
+
+        print(str.format('setting! {0}', self.t))
+        self.t += 1
 
     def setColor(self, color: QColor, outline: QColor):
         self.color = color
@@ -47,9 +52,9 @@ class OverlayCircle(OverlayObject):
     def circlePopIn(self, left, top, width, height):
         if self._anim is not None:
             return self._anim
-        #self.color = QColor(255, 255, 255, 128)
-        #self.outline = QColor(255, 255, 255, 128)
-        #self.setColor(self.color, self.outline)
+        # self.color = QColor(255, 255, 255, 128)
+        # self.outline = QColor(255, 255, 255, 128)
+        # self.setColor(self.color, self.outline)
 
         leftS = left
         topS = top
@@ -60,7 +65,8 @@ class OverlayCircle(OverlayObject):
 
         easeInOutQuint = lambda x: (16 * x * x * x * x * x) if x < 0.5 else (1 - pow(-2 * x + 2, 5) / 2)
         anim = animation.make_rect_anim(self.setCircle, QRect(int(leftS), int(topS), 0, 0),
-                                        QRect(int(leftS - widthE / 2), int(topS - heightE / 2), int(widthE), int(heightE)),
+                                        QRect(int(leftS - widthE / 2), int(topS - heightE / 2), int(widthE),
+                                              int(heightE)),
                                         self.pop_t, easeInOutQuint)
 
         easeOutQuint = lambda x: 1 - pow(1 - x, 5)
@@ -96,7 +102,7 @@ class OverlayCircle(OverlayObject):
                                          QRect(int(leftS), int(topS), 0, 0),
                                          self.pop_t, easeInOutQuint)
 
-        anim2.after = lambda : self.destroy()
+        anim2.after = lambda: self.destroy()
 
         return anim, anim2
 
@@ -121,13 +127,12 @@ class OverlayCircle(OverlayObject):
         method = lambda r1, r2, t: [(self.setCircle(QRect(
             (1 - t) * r1.topLeft() + t * r2.topLeft(),
             (1 - t) * r1.bottomRight() + t * r2.bottomRight())
-        )), self.setOpacity(1-t)]
+        )), self.setOpacity(1 - t)]
 
-
-        easing = lambda t: (1-pow(1-t,3))
+        easing = lambda t: (1 - pow(1 - t, 3))
 
         newAnim = animation.Animation(QRect(int(leftT), int(topT), int(width), int(height)),
-                                    QRect(int(left - widthE / 2), int(top - heightE / 2), int(widthE), int(heightE)),
+                                      QRect(int(left - widthE / 2), int(top - heightE / 2), int(widthE), int(heightE)),
                                       method, newTime, easing, True)
 
         self._anim = newAnim

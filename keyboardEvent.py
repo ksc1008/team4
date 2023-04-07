@@ -16,6 +16,7 @@ class ShorCut(QThread):
     show_content_key = pyqtSignal()
     test_key: pyqtSignal = pyqtSignal()
     copy_key = pyqtSignal()
+    message_arrived = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()

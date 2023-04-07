@@ -3,6 +3,7 @@ import sys
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import *
 import mainWindow
+from ChatGPT1 import MyWindow
 
 
 class MySignal(QObject):
@@ -29,7 +30,10 @@ def on_button_clicked():
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+
+    gptWindow = MyWindow()
     window = mainWindow.MainWindow(app)
+    gptWindow.initiate(window.shortcut)
     my_signal = MySignal()
     my_signal.setSignal(window.shortcut)
     # window.showFullScreen()

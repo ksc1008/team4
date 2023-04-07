@@ -14,14 +14,11 @@ from playsound import playsound
 import threading
 import sounddevice as sd
 import soundfile as sf
-from scipy.io.wavfile import write
-import time
-import keyboard
 
 from multiprocessing import Process, Queue, freeze_support
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
-from PyQt5.QtGui import QIcon, QPixmap, QFont
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
+
+from keyboardEvent import ShorCut
 
 #from "ui 파일 이름" import Ui_MainWindow
 
@@ -31,7 +28,7 @@ q = queue.Queue()
 
 
 os.makedirs("history", exist_ok=True) #history 폴더 생성
-os.environ['OPENAI_API_KEY'] = '(자신이 가진 charGPT API를 입력)' #환경변수에 API_KEY값 지정
+os.environ['OPENAI_API_KEY'] = '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' #환경변수에 API_KEY값 지정
 openai.api_key = os.getenv("OPENAI_API_KEY")
 #
 messages = [
@@ -168,60 +165,57 @@ class Producer(QThread):
                 continue
 
 class Consumer(QThread):
-    message_arrived = Signal(str)
-
+    message_arrived = pyqtSignal(str)
     def __init__(self, answer_que):
         super().__init__()
-        self.answer_que    = answer_que
+        self.answer_que = answer_que
+        self.shortcut = None
 
     def run(self):
         while True:
             if not self.answer_que.empty():
                 data = self.answer_que.get()
-                self.message_arrived.emit(data)
+                self.shortcut.message_arrived.emit(data)
 
 
 class MyWindow(QObject):
+    prompt_que = Queue()
+    answer_que = Queue()
+
     def __init__(self):
-        #super().__init__()
+        super().__init__()
         # ====================================================
-        self.producer = Producer(prompt_que, answer_que)
+        self.producer = Producer(MyWindow.prompt_que, MyWindow.answer_que)
         self.producer.start()
 
-        self.consumer = Consumer(answer_que)
+        self.consumer = Consumer(MyWindow.answer_que)
         self.consumer.start()
 
         # ====================================================
         self.consumer.message_arrived.connect(self.on_message_arrived)
-        self.consumer.message_waiting.connect(self.on_message_waiting)
         self.shortcut = None
 
-    def initiate(self, sc):
+    def initiate(self, sc:ShorCut):
         self.shortcut = sc
         self.shortcut.mic_key.connect(self.on_record)
         self.shortcut.release_mic_key.connect(self.off_record)
+        self.consumer.shortcut = sc
 
     #레코드 시작 슬롯
-    @Slot(int)
+    @pyqtSlot()
     def on_record(self):
         start()
 
     #레코드 종료 & 위스퍼를 통해 stt
-    @Slot(int)
+    @pyqtSlot()
     def off_record(self):
         stop()
         audio_file = open("record.wav", "rb")
         question = whisper_api(audio_file)
 
         if len(question):
-            prompt_que.put(question)
+            MyWindow.prompt_que.put(question)
 
-    @Slot(str)
+    @pyqtSlot(str)
     def on_message_arrived(self, data):
         self.shortcut.message_arrived.emit(data)
-
-if __name__ == "__main__":
-    prompt_que = Queue()
-    answer_que = Queue()
-
-    window = MyWindow()

@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.shortcut.mic_key.connect(self.shortcut_mic_key)
         self.shortcut.release_mic_key.connect(self.shortcut_release_mic_key)
         self.shortcut.copy_key.connect(self.shortcut_copy_key)
+        self.shortcut.message_arrived.connect(self.on_message_arrived)
         self.animator.start()
         self.test = _t
 
@@ -190,6 +191,11 @@ class MainWindow(QMainWindow):
         else:
             print('no answer from gpt.')
 
+    @pyqtSlot(str)
+    def on_message_arrived(self, data):
+        MainWindow.response = data
+        self.popCheckIn()
+
     def popCheckIn(self):
         check_width = 100
         check_height = 100
@@ -221,28 +227,13 @@ class MainWindow(QMainWindow):
 
         self.animator.addAnim(popoutAnim)
 
+
     def popLabelIn(self):
         ol = OverlayLabel("Response Arrived!")
         ol.setGeometry(self.width() / 2, self.height() * 1 / 6+150)
         a = ol.getResponseOpenAnimation(1200)
         self.addObject(ol)
         self.animator.addAnim(a)
-
-        MainWindow.response = "직각삼각형에서 피타고라스의 정리는 c^2 = a^2 + b^2입니다. 여기서 a와 b는 직각을 이루는 두 변이고, c는 빗변입니다. 이 문제에서는 a = " \
-                              "3, b = 4이므로 c^2 = 3^2 + 4^2 = 9 + 16 = 25이고, 따라서 c = sqrt(25) = 5cm입니다.\n\n따라서 정답은 " \
-                              "5cm입니다.\n\n문제 2:\n피타고라스 수는 a^2 + b^2 = c^2을 만족하는 자연수 a, b, c의 쌍입니다. 100 이하의 자연수 중에서 이를 " \
-                              "만족하는 모든 쌍을 구하기 위해서는 a와 b에 대해 이중 반복문을 돌려서 가능한 모든 경우의 수를 다 시도해보면 됩니다.\n\nPython 코드로 구현하면 " \
-                              "다음과 같습니다.\n\npythagorean_triples = []\nfor a in range(1, 101):\n    for b in range(" \
-                              "a+1, 101):\n        c = (a**2 + b**2) ** 0.5\n\n\n      if c == int(c):\n            " \
-                              "pythagorean_triples.append((a, b, int(c)))\n\nprint(pythagorean_triples)\n위 코드를 실행하면 (" \
-                              "3, 4, 5), (5, 12, 13), (6, 8, 10), (7, 24, 25), (8, 15, 17), (9, 12, 15), (9, 40, 41), " \
-                              "(10, 24, 26), (12, 16, 20), (12, 35, 37), (15, 20, 25), (15, 36, 39), (16, 30, 34), " \
-                              "(18, 24, 30), (20, 21, 29), (21, 28, 35), (24, 32, 40), (27, 36, 45), (30, 40, 50), " \
-                              "(33, 44, 55), (36, 48, 60), (39, 52, 65), (48, 55, 73), (40, 42, 58), (45, 60, 75), " \
-                              "(36, 77, 85), (51, 68, 85), (60, 63, 87), (54, 72, 90), (35, 84, 91), (57, 76, 95), " \
-                              "(65, 72, 97), (40, 96, 104), (63, 84, 105), (56, 90, 106), (48, 64, 80), (69, 92, " \
-                              "115), (72, 96, 120), (20, 99, 101), (45, 108, 117), (28, 105, 107), (60, 91, 109), " \
-                              "(88, 105, 137), (36, 77, 85), (40, 96, 104), (51, 140, "
 
     def showContent(self):
         if MainWindow.response is None:
