@@ -1,16 +1,43 @@
-# This is a sample Python script.
+import sys
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import *
+import mainWindow
 
 
-# Press the green button in the gutter to run the script.
+class MySignal(QObject):
+    button_clicked = pyqtSignal()
+    shortcut = None
+
+    def setSignal(self, sig):
+        MySignal.shortcut = sig
+        MySignal.shortcut.test_key.connect(self.shortcut_label_key)
+
+    def __init__(self):
+        super().__init__()
+        self.shortcut = None
+
+    @pyqtSlot()
+    def shortcut_label_key(self):  # Ctrl + F1 입력시 label 보이기 / 숨기기
+        print('slot works!')
+
+
+def on_button_clicked():
+    print('Button clicked')
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    app = QApplication(sys.argv)
+    window = mainWindow.MainWindow(app)
+    my_signal = MySignal()
+    my_signal.setSignal(window.shortcut)
+    # window.showFullScreen()
+
+    try:
+        sys.exit(app.exec())
+    except SystemExit:
+        window.animator.stop()
+        window.close()
+
+    print('window closed')
