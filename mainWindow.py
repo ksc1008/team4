@@ -46,16 +46,18 @@ class MainWindow(QMainWindow):
 
         self.shortcut = ShorCut()
         self.shortcut.start()
+
+        self.shortcut.circle_key.connect(self.shortcut_circle_key)              # disabled
+        self.shortcut.check_key.connect(self.shortcut_check_key)                # disabled
+
         self.shortcut.quit_key.connect(self.shortcut_quit_key)
         self.shortcut.show_content_key.connect(self.shortcut_content_key)
-        self.shortcut.circle_key.connect(self.shortcut_circle_key)
-        self.shortcut.check_key.connect(self.shortcut_check_key)
-        self.shortcut.demo_key.connect(self.shortcut_demo_key)
-        self.shortcut.label_key.connect(self.shortcut_label_key)
         self.shortcut.mic_key.connect(self.shortcut_mic_key)
         self.shortcut.release_mic_key.connect(self.shortcut_release_mic_key)
         self.shortcut.copy_key.connect(self.shortcut_copy_key)
         self.shortcut.message_arrived.connect(self.on_message_arrived)
+        self.shortcut.throw_error.connect(self.error_handle)
+        self.shortcut.start_prompt.connect(self.startPrompting)
         self.animator.start()
         self.test = _t
 
@@ -70,8 +72,6 @@ class MainWindow(QMainWindow):
         self.label = TextLabel(self)
         # self.mic_image = PixmapLabel(self, 'images/mic_white.png')
         self.label.setTextContents("♥")
-
-
 
     # 오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -93,11 +93,6 @@ class MainWindow(QMainWindow):
             o.destroy()
 
     @pyqtSlot()
-    def shortcut_demo_key(self):  # Ctrl + D 입력 시 demo 실행
-        # demo.py 참고
-        self.addObject(demo.createTestObjectAndApplyAnimation(self.animator))
-
-    @pyqtSlot()
     def shortcut_quit_key(self):  # Ctrl + Q 입력시 프로그램 종료
         self.finAllObj()
         self.label.close()
@@ -108,28 +103,13 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def shortcut_circle_key(self):  # Ctrl + E 입력 시 Loading Circle 추가 혹은 제거
         if self.lc is None:
-            self.lc = overlay_objects.loadingCircle.LoadingCircle()
-            self.lc.setGeometry(self.width() / 2, self.height() / 6, 40, 7)
-            self.lc.circle_interval = 0.065
-
-            self.addObject(self.lc)
-            self.animator.addAnim(self.lc.getCycleAnimation())
+            self.showLoadingCircle()
         else:
-            self.lc.destroy()
-            self.lc = None
+            self.hideLoadingCircle()
 
     @pyqtSlot()
     def shortcut_check_key(self):  # Ctrl + F2 입력 시 체크 표시
         self.popCheckIn()
-
-    @pyqtSlot()
-    def shortcut_label_key(self):  # Ctrl + F1 입력시 label 보이기 / 숨기기
-        if not self.re:
-            self.label.pop_in(self.animator)
-            self.re = True
-        else:
-            self.label.pop_out()
-            self.re = False
 
     @pyqtSlot()
     def shortcut_content_key(self):
@@ -195,6 +175,12 @@ class MainWindow(QMainWindow):
     def on_message_arrived(self, data):
         MainWindow.response = data
         self.popCheckIn()
+        self.endPrompting()
+
+    @pyqtSlot(str)
+    def error_handle(self, e):
+        print(e)
+        self.endPrompting()
 
     def popCheckIn(self):
         check_width = 100
@@ -227,10 +213,9 @@ class MainWindow(QMainWindow):
 
         self.animator.addAnim(popoutAnim)
 
-
     def popLabelIn(self):
         ol = OverlayLabel("Response Arrived!")
-        ol.setGeometry(self.width() / 2, self.height() * 1 / 6+150)
+        ol.setGeometry(self.width() / 2, self.height() * 1 / 6 + 150)
         a = ol.getResponseOpenAnimation(1200)
         self.addObject(ol)
         self.animator.addAnim(a)
@@ -239,13 +224,12 @@ class MainWindow(QMainWindow):
         if MainWindow.response is None:
             return
 
-
         ol = OverlayLabel(MainWindow.response, True)
-        ol.setGeometry(100,80)
-        ol.setRect(QRectF(self.width()/6, self.height()/8, self.width()/3*2, self.height()-100))
+        ol.setGeometry(100, 80)
+        ol.setRect(QRectF(self.width() / 6, self.height() / 8, self.width() / 3 * 2, self.height() - 100))
         ol.textOpacity = 0
         ol.opacity = 0
-        a1,a2 = ol.getContentOpenAnimation()
+        a1, a2 = ol.getContentOpenAnimation()
         self.addObject(ol)
         self.animator.addAnim(a1)
         self.animator.addAnim(a2)
@@ -256,3 +240,25 @@ class MainWindow(QMainWindow):
             self.rc.destroy()
             self.rc = None
 
+    def showLoadingCircle(self):
+        if self.lc is None:
+            self.lc = overlay_objects.loadingCircle.LoadingCircle()
+            self.lc.setGeometry(self.width() / 2, self.height() / 6, 40, 7)
+            self.lc.circle_interval = 0.065
+
+            self.addObject(self.lc)
+            self.animator.addAnim(self.lc.getCycleAnimation())
+
+    def hideLoadingCircle(self):
+        if self.lc is not None:
+            self.lc.destroy()
+            self.lc = None
+
+    @pyqtSlot()
+    def startPrompting(self):
+        self.showLoadingCircle()
+        self.shortcut.readyToListen = True
+
+    def endPrompting(self):
+        self.hideLoadingCircle()
+        self.shortcut.readyToListen = True

@@ -10,13 +10,13 @@ class ShorCut(QThread):
     circle_key = pyqtSignal()
     mic_key = pyqtSignal()
     release_mic_key = pyqtSignal()
-    demo_key = pyqtSignal()
-    label_key = pyqtSignal()
     check_key = pyqtSignal()
     show_content_key = pyqtSignal()
     test_key: pyqtSignal = pyqtSignal()
     copy_key = pyqtSignal()
+    throw_error = pyqtSignal(str)
     message_arrived = pyqtSignal(str)
+    start_prompt = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -28,6 +28,8 @@ class ShorCut(QThread):
         self.f3_pressing = False
         self.f4_pressing = False
 
+        self.readyToListen = True
+
     def run(self):
         while self.running:
             time.sleep(0.1)
@@ -37,18 +39,20 @@ class ShorCut(QThread):
                 self.quit_key.emit()
 
             # <Ctrl+E> 눌리면 -> circle_key
-            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x45) < 0:  # <Ctrl+E> 입력
-                if not self.circle_pressing:
-                    print("<Ctrl+E> -> [circle key]")
-                    self.circle_key.emit()
-                    self.circle_pressing = True
-            elif self.circle_pressing:
-                self.circle_pressing = False
+            #if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x45) < 0:  # <Ctrl+E> 입력
+            #    if not self.circle_pressing:
+            #        print("<Ctrl+E> -> [circle key]")
+            #        self.circle_key.emit()
+            #        self.circle_pressing = True
+            #elif self.circle_pressing:
+            #    self.circle_pressing = False
 
             # <Ctrl+M> 눌리면 -> mic_key
             # <Ctrl+M> 때면 -> mic_key_release
             if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x4D) < 0:  # <Ctrl+M> 입력
                 if not self.mic_pressing:
+                    if not self.readyToListen:
+                        return
                     print("<Ctrl+M> -> [pressing mic_key]")
                     self.mic_key.emit()
                     self.mic_pressing = True
@@ -59,13 +63,13 @@ class ShorCut(QThread):
                 self.mic_pressing = False
 
             # <Ctrl+F2> 눌리면 -> check_key
-            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x71) < 0:  # <Ctrl+F2> 입력
-                if not self.f2_pressing:
-                    self.check_key.emit()
-                    self.f2_pressing = True
-                    print("<Ctrl+F2> -> [check key]")
-            elif self.f2_pressing:
-                self.f2_pressing = False
+            #if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x71) < 0:  # <Ctrl+F2> 입력
+            #    if not self.f2_pressing:
+            #        self.check_key.emit()
+            #        self.f2_pressing = True
+            #        print("<Ctrl+F2> -> [check key]")
+            #elif self.f2_pressing:
+            #    self.f2_pressing = False
 
             # <Ctrl+F3> 눌리면 -> content_key
             if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x72) < 0:  # <Ctrl+F3> 입력
@@ -84,19 +88,6 @@ class ShorCut(QThread):
                     print("<Ctrl+F4> -> [copy key]")
             elif self.f4_pressing:
                 self.f4_pressing = False
-
-            if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x44) < 0:  # <Ctrl+D> 입력
-                print("<Ctrl+D> -> [Demo key]")
-                self.test_key.emit()
-
-            # <Ctrl+F1> 눌리면 -> label_key
-            #if win32api.GetAsyncKeyState(0x11) < 0 and win32api.GetAsyncKeyState(0x70) < 0:  # <Ctrl+F1> 입력
-            #    if not self.f1_pressing:
-            #        self.label_key.emit()
-            #        self.f1_pressing = True
-            #        print("<Ctrl+F1> -> [label key]")
-            #elif self.f1_pressing:
-            #    self.f1_pressing = False
 
     def stop(self):
         self.running = False
