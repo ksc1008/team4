@@ -19,11 +19,11 @@ import time
 import keyboard
 
 from multiprocessing import Process, Queue, freeze_support
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QLabel
-from PySide6.QtCore import Signal, Slot, Qt, QTimer, QThread
-from PySide6.QtGui import QIcon, QPixmap, QFont
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
+from PyQt5.QtGui import QIcon, QPixmap, QFont
 
-from "ui 파일 이름" import Ui_MainWindow
+#from "ui 파일 이름" import Ui_MainWindow
 
 # ==========================================================
 
@@ -181,11 +181,9 @@ class Consumer(QThread):
                 self.message_arrived.emit(data)
 
 
-class MyWindow(QMainWindow, Ui_MainWindow):
+class MyWindow(QObject):
     def __init__(self):
         #super().__init__()
-        QMainWindow.__init__(self, None, Qt.WindowStaysOnTopHint)
-        self.setupUi(self)
         # ====================================================
         self.producer = Producer(prompt_que, answer_que)
         self.producer.start()
@@ -196,8 +194,12 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         # ====================================================
         self.consumer.message_arrived.connect(self.on_message_arrived)
         self.consumer.message_waiting.connect(self.on_message_waiting)
-        self."녹화 시작 시그널이름"(self.on_record)
-        self."녹화 종료 시그널이름"(self.off_record)
+        self.shortcut = None
+
+    def initiate(self, sc):
+        self.shortcut = sc
+        self.shortcut.mic_key.connect(self.on_record)
+        self.shortcut.release_mic_key.connect(self.off_record)
 
     #레코드 시작 슬롯
     @Slot(int)
@@ -216,21 +218,10 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
     @Slot(str)
     def on_message_arrived(self, data):
-        self.answer_arrived = True
-        decorate = f"ChatGPT>: {data}"
-        self.text_answer.append(decorate)
-        self.text_answer.ensureCursorVisible()
+        self.shortcut.message_arrived.emit(data)
 
 if __name__ == "__main__":
     prompt_que = Queue()
     answer_que = Queue()
 
-    if not QApplication.instance():
-        print("QApplication(sys.argv)")
-        app = QApplication(sys.argv)
-    else:
-        print("QApplication.instance()")
-        app = QApplication.instance()
-
-    win = MyWindow()
-    win.show()
+    window = MyWindow()
