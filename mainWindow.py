@@ -4,6 +4,8 @@ from PyQt6.QtWidgets import *
 from PyQt6 import QtCore, QtGui
 
 import overlay_objects.loadingCircle
+import pyperclip
+
 from keyboardEvent import ShorCut
 from overlay_animations import animator, animation
 from overlay_objects.overlayObject import OverlayObject
@@ -52,6 +54,7 @@ class MainWindow(QMainWindow):
         self.shortcut.label_key.connect(self.shortcut_label_key)
         self.shortcut.mic_key.connect(self.shortcut_mic_key)
         self.shortcut.release_mic_key.connect(self.shortcut_release_mic_key)
+        self.shortcut.copy_key.connect(self.shortcut_copy_key)
         self.animator.start()
         self.test = _t
 
@@ -65,7 +68,7 @@ class MainWindow(QMainWindow):
 
         self.label = TextLabel(self)
         # self.mic_image = PixmapLabel(self, 'images/mic_white.png')
-        self.label.setTextContents("ChatGPT로 부터의 1 개의 답변.")
+        self.label.setTextContents("♥")
 
 
 
@@ -179,6 +182,13 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def popUp(self):
         pass
+
+    @pyqtSlot()
+    def shortcut_copy_key(self):
+        if MainWindow.response is not None:
+            pyperclip.copy(MainWindow.response)
+        else:
+            print('no answer from gpt.')
 
     def popCheckIn(self):
         check_width = 100
