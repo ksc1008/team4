@@ -7,10 +7,11 @@ from PyQt6 import QtCore, QtGui
 import overlay_objects.loadingCircle
 import pyperclip
 
-from keyboardEvent import ShorCut
+from keyboardEvent import KeyboardEvents
 from overlay_animations import animator, animation
 from overlay_objects.overlayObject import OverlayObject
 from overlay_objects.overlayLabel import OverlayLabel
+from signalManager import SignalManager, KeyboardSignal, OverlaySignal, ProgramSignal
 from textLabel import TextLabel
 
 import overlay_objects.overlayCircle
@@ -31,6 +32,27 @@ class MainWindow(QMainWindow):
         QFontDatabase.addApplicationFont(MainWindow.font_folder + '/Roboto-Regular.ttf')
         QFontDatabase.addApplicationFont(MainWindow.font_folder + '/Roboto-Medium.ttf')
 
+        # OverlayObject 객체 리스트
+        self.objects = []
+
+        self.keyboardSignal = KeyboardSignal
+        self.overlaySignal = OverlaySignal
+        self.programSignal = ProgramSignal
+
+        self.animator = animator.Animator(self)
+        self.animator.start()
+        self._progApp = _t
+
+        self._loadingCircle = None
+        self._micCircle = None
+        self._micImage = None
+        self._micCircleWave = None
+        self._contentLabel = None
+
+        self.initiateWindow()
+        self.initiateSignals()
+
+    def initiateWindow(self):
         self.setWindowFlags(
             Qt.WindowType.WindowStaysOnTopHint |
             Qt.WindowType.FramelessWindowHint |
@@ -38,41 +60,23 @@ class MainWindow(QMainWindow):
             Qt.WindowType.WindowTransparentForInput)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground, True)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.animator = animator.Animator(self)
 
         self.showFullScreen()
 
-        # OverlayObject 객체 리스트
-        self.objects = []
+    def initiateSignals(self):
+        self.keyboardSignal = SignalManager().keyboardSignals
+        self.overlaySignal = SignalManager().overlaySignals
+        self.programSignal = SignalManager().programSignals
 
-        self.shortcut = ShorCut()
-        self.shortcut.start()
+        self.keyboardSignal.quit_key.connect(self.shortcut_quit_key)
+        self.keyboardSignal.show_content_key.connect(self.shortcut_content_key)
+        self.keyboardSignal.copy_key.connect(self.shortcut_copy_key)
 
-        self.shortcut.circle_key.connect(self.shortcut_circle_key)  # disabled
-        self.shortcut.check_key.connect(self.shortcut_check_key)  # disabled
-
-        self.shortcut.quit_key.connect(self.shortcut_quit_key)
-        self.shortcut.show_content_key.connect(self.shortcut_content_key)
-        self.shortcut.mic_key.connect(self.shortcut_mic_key)
-        self.shortcut.release_mic_key.connect(self.shortcut_release_mic_key)
-        self.shortcut.copy_key.connect(self.shortcut_copy_key)
-        self.shortcut.message_arrived.connect(self.on_message_arrived)
-        self.shortcut.throw_error.connect(self.error_handle)
-        self.shortcut.start_prompt.connect(self.startPrompting)
-        self.animator.start()
-        self.test = _t
-
-        self.re = False
-
-        self.lc = None
-        self.oc = None
-        self.mp = None
-        self.sw = None
-        self.rc = None
-
-        self.label = TextLabel(self)
-        # self.mic_image = PixmapLabel(self, 'images/mic_white.png')
-        self.label.setTextContents("♥")
+        self.overlaySignal.message_arrived.connect(self.on_message_arrived)
+        self.overlaySignal.throw_error.connect(self.error_handle)
+        self.overlaySignal.start_prompt.connect(self.onPromptStart)
+        self.overlaySignal.on_start_rec.connect(self.on_rec_start)
+        self.overlaySignal.on_stop_rec.connect(self.on_rec_end)
 
     # 오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -83,7 +87,7 @@ class MainWindow(QMainWindow):
             o.draw(painter)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self.test.exit(0)
+        self._progApp.exit(0)
 
     def addObject(self, obj: OverlayObject):  # 메인 윈도우의 objects에 새 오브젝트를 추가.
         self.objects.append(obj)
@@ -95,75 +99,58 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def shortcut_quit_key(self):  # Ctrl + Q 입력시 프로그램 종료
-        self.finAllObj()
-        self.label.close()
-        self.shortcut.stop()
-        self.shortcut.terminate()
+        self.programSignal.stop.emit()
         self.close()
 
     @pyqtSlot()
-    def shortcut_circle_key(self):  # Ctrl + E 입력 시 Loading Circle 추가 혹은 제거
-        if self.lc is None:
-            self.showLoadingCircle()
-        else:
-            self.hideLoadingCircle()
-
-    @pyqtSlot()
-    def shortcut_check_key(self):  # Ctrl + F2 입력 시 체크 표시
-        self.popCheckIn()
-
-    @pyqtSlot()
     def shortcut_content_key(self):
-        if self.rc is not None:
+        if self._contentLabel is not None:
             self.hideContent()
         else:
             self.showContent()
 
     @pyqtSlot()
-    def shortcut_mic_key(self):  # Ctrl + M 눌리면
+    def on_rec_start(self):  # Ctrl + M 눌리면
         print("pressing")
         mic_width = 200
         mic_height = 200
-        if self.mp is None:
-            self.oc = overlay_objects.overlayCircle.OverlayCircle()
-            self.mp = overlay_objects.overlayPixmap.OverlayPixmap('images/mic.png')
-            self.sw = overlay_objects.overlayCircle.OverlayCircle()
-            self.addObject(self.sw)
+        if self._micImage is None:
+            self._micCircle = overlay_objects.overlayCircle.OverlayCircle()
+            self._micImage = overlay_objects.overlayPixmap.OverlayPixmap('images/mic.png')
+            self._micCircleWave = overlay_objects.overlayCircle.OverlayCircle()
+            self.addObject(self._micCircleWave)
             self.animator.addAnim(
-                self.sw.getWaveAnimation(self.width() / 2, self.height() * 2 / 3, mic_width, mic_height))
+                self._micCircleWave.getWaveAnimation(self.width() / 2, self.height() * 2 / 3, mic_width, mic_height))
 
-            animC1, animC2 = self.oc.circlePopIn(self.width() / 2, self.height() * 2 / 3, mic_width, mic_height)
-            animM1, animM2 = self.mp.micPopIn(self.width() / 2, self.height() * 2 / 3, mic_width * 0.9, mic_height)
+            animC1, animC2 = self._micCircle.circlePopIn(self.width() / 2, self.height() * 2 / 3, mic_width, mic_height)
+            animM1, animM2 = self._micImage.micPopIn(self.width() / 2, self.height() * 2 / 3, mic_width * 0.9,
+                                                     mic_height)
 
             animC1.after = lambda: self.animator.addAnim(animC2)
             animM1.after = lambda: self.animator.addAnim(animM2)
 
-            self.addObject(self.oc)
-            self.addObject(self.mp)
+            self.addObject(self._micCircle)
+            self.addObject(self._micImage)
 
             self.animator.addAnim(animC1)
             self.animator.addAnim(animM1)
 
     @pyqtSlot()
-    def shortcut_release_mic_key(self):  # Ctrl + M 때면
+    def on_rec_end(self):  # Ctrl + M 때면
         print("released")
-        if self.mp is not None:
-            self.sw.destroy()
+        if self._micImage is not None:
+            self._micCircleWave.destroy()
 
-            animM1, animM2 = self.mp.micPopOut()
-            animC1, animC2 = self.oc.circlePopOut()
+            animM1, animM2 = self._micImage.micPopOut()
+            animC1, animC2 = self._micCircle.circlePopOut()
             animM1.after = lambda: self.animator.addAnim(animM2)
             animC1.after = lambda: self.animator.addAnim(animC2)
             self.animator.addAnim(animM1)
             self.animator.addAnim(animC1)
 
-            self.mp = None
-            self.oc = None
-            self.sw = None
-
-    @pyqtSlot()
-    def popUp(self):
-        pass
+            self._micImage = None
+            self._micCircle = None
+            self._micCircleWave = None
 
     @pyqtSlot()
     def shortcut_copy_key(self):
@@ -178,12 +165,13 @@ class MainWindow(QMainWindow):
     def on_message_arrived(self, data):
         MainWindow.response = data
         self.popCheckIn()
-        self.endPrompting()
+        self.onPromptEnd()
 
     @pyqtSlot(str)
     def error_handle(self, e):
         print(e)
-        self.endPrompting()
+        self.popBalloon(e, QColor(0xcc, 0, 0, 200), 3000)
+        self.onPromptEnd()
 
     def popCheckIn(self):
         check_width = 100
@@ -222,6 +210,7 @@ class MainWindow(QMainWindow):
 
         self.addObject(ol)
         wait = animation.wait(duration)
+
         def after():
             a3, a4 = ol.getFadeoutAnimation()
             self.animator.addAnim(a3)
@@ -231,7 +220,6 @@ class MainWindow(QMainWindow):
         a2.after = lambda: [ol.removeAnim(a2), self.animator.addAnim(wait)]
         self.animator.addAnim(a1)
         self.animator.addAnim(a2)
-
 
     def popCheckOut(self, cc, check):
         cc.pop_t = 300
@@ -264,32 +252,30 @@ class MainWindow(QMainWindow):
         self.addObject(ol)
         self.animator.addAnim(a1)
         self.animator.addAnim(a2)
-        self.rc = ol
+        self._contentLabel = ol
 
     def hideContent(self):
-        if self.rc is not None:
-            self.rc.destroy()
-            self.rc = None
+        if self._contentLabel is not None:
+            self._contentLabel.destroy()
+            self._contentLabel = None
 
     def showLoadingCircle(self):
-        if self.lc is None:
-            self.lc = overlay_objects.loadingCircle.LoadingCircle()
-            self.lc.setGeometry(self.width() / 2, self.height() / 6, 40, 7)
-            self.lc.circle_interval = 0.065
+        if self._loadingCircle is None:
+            self._loadingCircle = overlay_objects.loadingCircle.LoadingCircle()
+            self._loadingCircle.setGeometry(self.width() / 2, self.height() / 6, 40, 7)
+            self._loadingCircle.circle_interval = 0.065
 
-            self.addObject(self.lc)
-            self.animator.addAnim(self.lc.getCycleAnimation())
+            self.addObject(self._loadingCircle)
+            self.animator.addAnim(self._loadingCircle.getCycleAnimation())
 
     def hideLoadingCircle(self):
-        if self.lc is not None:
-            self.lc.destroy()
-            self.lc = None
+        if self._loadingCircle is not None:
+            self._loadingCircle.destroy()
+            self._loadingCircle = None
 
     @pyqtSlot()
-    def startPrompting(self):
+    def onPromptStart(self):
         self.showLoadingCircle()
-        self.shortcut.readyToListen = True
 
-    def endPrompting(self):
+    def onPromptEnd(self):
         self.hideLoadingCircle()
-        self.shortcut.readyToListen = True

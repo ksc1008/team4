@@ -31,7 +31,6 @@ class LoadingCircle(OverlayObject):
         self.radius = radius
         self.dot_size = size
 
-
     def draw(self, painter: QPainter):
         def easing(t):
             if t < 0.5:

@@ -181,7 +181,6 @@ class OverlayLabel(OverlayObject):
         return firstAnim
 
     def getResponseCloseAnimation(self):
-
         def setTextOpacity(o):
             self.textOpacity = o
             self.manualOpacity = pow(o, 10)

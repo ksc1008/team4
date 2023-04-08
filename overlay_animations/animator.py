@@ -1,16 +1,19 @@
 import time
 import threading
 
+from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import QMainWindow
 
 from overlay_animations.animation import Animation
+from signalManager import SignalManager
 
 
 class Animator(threading.Thread):
     """
     애니메이션을 관리하고 매 프레임 등록된 각 애니메이션을 update하는 컨트롤 클래스
     """
+
     def __init__(self, window: QMainWindow):
         super(Animator, self).__init__()
         self.window = window
@@ -21,8 +24,10 @@ class Animator(threading.Thread):
         self.daemon = True
         self.shouldStop = False
 
+        SignalManager().programSignals.stop.connect(self.stop)
+
     def setFramerate(self, fps):
-        self.interval_s = 1/fps
+        self.interval_s = 1 / fps
 
     def stop(self):
         self.shouldStop = True
@@ -32,6 +37,7 @@ class Animator(threading.Thread):
         self.animations.append(animation)
         animation.startAnim(self)
 
+    @pyqtSlot()
     def run(self):
         while not self.shouldStop:
             for t in self.animations:

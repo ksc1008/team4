@@ -18,11 +18,12 @@ import soundfile as sf
 from multiprocessing import Process, Queue, freeze_support
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
 
-from keyboardEvent import ShorCut
+from keyboardEvent import KeyboardEvents
 
 # from "ui 파일 이름" import Ui_MainWindow
 
 # ==========================================================
+from signalManager import SignalManager, KeyboardSignal, OverlaySignal
 
 q = queue.Queue()
 
@@ -36,6 +37,8 @@ messages = [
         "content": "You are a helpful assistant who is good at detailing."
     }
 ]
+
+
 
 
 # ChatGPT API 함수 : ChatGPT 응답을 return
@@ -165,7 +168,7 @@ class Producer(QThread):
         super().__init__()
         self.prompt_que = prompt_que
         self.answer_que = answer_que
-        self.shortcut = None
+        self.overlaySignals = SignalManager().overlaySignals
 
     def run(self):
         while True:
@@ -179,38 +182,37 @@ class Producer(QThread):
                 except openai.error.Timeout as e:
                     # Handle timeout error, e.g. retry or log
                     msg = f"OpenAI API request timed out: {e}"
-                    self.shortcut.throw_error.emit(msg)
-
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.APIError as e:
                     # Handle API error, e.g. retry or log
                     msg = f"OpenAI API returned an API Error: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.APIConnectionError as e:
                     # Handle connection error, e.g. check network or log
                     msg = f"OpenAI API request failed to connect: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.InvalidRequestError as e:
                     # Handle invalid request error, e.g. validate parameters or log
                     msg = f"OpenAI API request was invalid: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.AuthenticationError as e:
                     # Handle authentication error, e.g. check credentials or log
                     msg = f"OpenAI API request was not authorized: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.PermissionError as e:
                     # Handle permission error, e.g. check scope or log
                     msg = f"OpenAI API request was not permitted: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.RateLimitError as e:
                     # Handle rate limit error, e.g. wait or log
                     msg = f"OpenAI API request exceeded rate limit: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
 
 
@@ -219,21 +221,20 @@ class Consumer(QThread):
     def __init__(self, answer_que):
         super().__init__()
         self.answer_que = answer_que
-        self.shortcut = None
 
     def run(self):
         while True:
             if not self.answer_que.empty():
                 data = self.answer_que.get()
-                self.shortcut.message_arrived.emit(data)
+                SignalManager().overlaySignals.message_arrived.emit(data)
 
 
-class WhisperWorker(QThread):
+class WhisperWorker(QThread):  # Whisper Worker 또한 프로듀서 - 컨슈머 패턴에 추가 -> for concurrency
     def __init__(self, audio_que, prompt_que):
         super().__init__()
         self.audio_que = audio_que
         self.prompt_que = prompt_que
-        self.shortcut = None
+        self.overlaySignals = SignalManager().overlaySignals
 
     def run(self):
         while True:
@@ -245,41 +246,41 @@ class WhisperWorker(QThread):
                     if len(prompt):
                         self.prompt_que.put(prompt)
                     else:
-                        self.shortcut.throw_error.emit('No prompt found. Please try again.')
+                        self.overlaySignals.throw_error.emit('No prompt found. Please try again.')
                 except openai.error.Timeout as e:
                     # Handle timeout error, e.g. retry or log
                     msg = f"OpenAI API request timed out: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.APIError as e:
                     # Handle API error, e.g. retry or log
                     msg = f"OpenAI API returned an API Error: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.APIConnectionError as e:
                     # Handle connection error, e.g. check network or log
                     msg = f"OpenAI API request failed to connect: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.InvalidRequestError as e:
                     # Handle invalid request error, e.g. validate parameters or log
                     msg = f"OpenAI API request was invalid: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.AuthenticationError as e:
                     # Handle authentication error, e.g. check credentials or log
                     msg = f"OpenAI API request was not authorized: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.PermissionError as e:
                     # Handle permission error, e.g. check scope or log
                     msg = f"OpenAI API request was not permitted: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
                 except openai.error.RateLimitError as e:
                     # Handle rate limit error, e.g. wait or log
                     msg = f"OpenAI API request exceeded rate limit: {e}"
-                    self.shortcut.throw_error.emit(msg)
+                    self.overlaySignals.throw_error.emit(msg)
                     pass
 
 
@@ -301,28 +302,51 @@ class MyWindow(QObject):
         self.consumer.start()
 
         # ====================================================
-        self.shortcut = None
+        self.keyboardSignals = KeyboardSignal
+        self.overlaySignals = OverlaySignal
 
-    def initiate(self, sc: ShorCut):
-        self.shortcut = sc
-        self.shortcut.mic_key.connect(self.on_record)
-        self.shortcut.release_mic_key.connect(self.off_record)
-        self.consumer.shortcut = sc
-        self.producer.shortcut = sc
-        self.whisperWorker.shortcut = sc
+        self.readyToRecord = True
+        self.recording = False
+
+        self.initiateSignals()
+
+    def initiateSignals(self):
+        self.keyboardSignals = SignalManager().keyboardSignals
+        self.overlaySignals = SignalManager().overlaySignals
+        self.keyboardSignals.mic_key.connect(self.on_record)
+        self.keyboardSignals.release_mic_key.connect(self.off_record)
+
+        # better way?
+        self.overlaySignals.message_arrived.connect(self.reset)
+        self.overlaySignals.throw_error.connect(self.reset)
 
     # 레코드 시작 슬롯
     @pyqtSlot()
     def on_record(self):
-        start()
+        if self.readyToRecord:
+            print('start record')
+            start()
+            self.readyToRecord = False
+            self.recording = True
+            self.overlaySignals.on_start_rec.emit()
 
     # 레코드 종료 & 위스퍼를 통해 stt
     @pyqtSlot()
     def off_record(self):
-        stop()
-        self.shortcut.start_prompt.emit()
-        MyWindow.audio_que.put(0)
+        if self.recording:
+            self.recording = False
+            print('stop record')
+            stop()
+            self.overlaySignals.start_prompt.emit()
+            MyWindow.audio_que.put(0)
+            self.overlaySignals.on_stop_rec.emit()
 
-    @pyqtSlot(str)
-    def on_message_arrived(self, data):
-        self.shortcut.message_arrived.emit(data)
+    @pyqtSlot()
+    def stop(self):
+        self.whisperWorker.terminate()
+        self.producer.terminate()
+        self.consumer.terminate()
+
+    @pyqtSlot()
+    def reset(self):
+        self.readyToRecord = True

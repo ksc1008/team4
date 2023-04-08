@@ -81,7 +81,7 @@ class OverlayCheck(OverlayObject):
         path2len = math.sqrt(pow(path2.x(), 2) + pow(path2.y(), 2))
 
         ratio = path1len / (path1len + path2len)
-        setter = lambda x: self.setPath(1-x, ratio)
+        setter = lambda x: self.setPath(1 - x, ratio)
 
         def easeinoutquart(x):
             if x < 0.5:
@@ -93,7 +93,6 @@ class OverlayCheck(OverlayObject):
         anim.after = self.removeAnim
 
         return anim
-
 
     def destroy(self):
         if self._anim is not None:

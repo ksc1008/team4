@@ -2,6 +2,8 @@ import time
 
 from PyQt6.QtCore import QRect, QRectF
 
+from signalManager import SignalManager
+
 
 class Animation:
 
@@ -44,7 +46,6 @@ class Animation:
 
         if self.animator is not None:
             self.animator.animations.remove(self)
-        print('removed animation')
 
     def update(self):
         self.elapsed = (time.time_ns() - self.startTime) / 1000000
@@ -76,6 +77,7 @@ def make_rect_anim(setter, fromRect: QRect, toRect: QRect, duration_ms, easing=N
     ))
 
     return Animation(fromRect, toRect, method, duration_ms, easing)
+
 
 def make_rect_animF(setter, fromRect: QRectF, toRect: QRectF, duration_ms, easing=None) -> Animation:
     """
