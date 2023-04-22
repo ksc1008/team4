@@ -49,10 +49,10 @@ ChatGPT 명령 수행이 끝나면 오버레이를 통해 응답 결과를 알�
 
 ### Shortcuts
 
-- [Ctrl+M]: 음성인식   
-- [Ctrl+F3]: 답변 표기   
-- [Ctrl+F4]: 답변 복사   
-- [Ctrl+Q]: 종료
+- Ctrl+M: 음성인식   
+- Ctrl+F3: 답변 표기   
+- Ctrl+F4: 답변 복사   
+- Ctrl+Q: 종료
 
 
 ## LISCENSE
