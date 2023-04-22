@@ -39,3 +39,24 @@ pip install -r requirements.txt
 ```
 python3 main.py
 ``` 
+
+## Usage
+
+기본적으로 Push-To-Talk 방식으로 음성인식이 이루어집니다.   
+[Ctrl + M]을 누르고 있으면, 마이크 녹음이 활성화 됩니다.
+[Ctrl + M]을 떼면, 녹음이 종료됩니다.
+ChatGPT 명령 수행이 끝나면 오버레이를 통해 응답 결과를 알려줍니다.
+
+### Shortcuts
+
+- [Ctrl+M]: 음성인식   
+- [Ctrl+F3]: 답변 표기   
+- [Ctrl+F4]: 답변 복사   
+- [Ctrl+Q]: 종료
+
+
+## LISCENSE
+------------------------------------------------------------------------------
+<a href="https://www.flaticon.com/free-icons/micro" title="micro icons">Micro icons created by Freepik - Flaticon</a>   
+
+This project is licensed under the GPL 3.0 license. Please see the LICENSE file for more information.
