@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QPainter, QPixmap, QIcon
+from PyQt6.QtGui import QPainter, QPixmap, QIcon, QColor
 from PyQt6.QtCore import QRect
 from PyQt6 import QtSvg
 from overlay_animations import animation
@@ -14,6 +14,10 @@ class OverlayPixmap(OverlayObject):
         self.height = 0
         self.image_path = image_path
         self.pixmap = QPixmap(self.image_path)
+
+        mask = self.pixmap.createMaskFromColor(QColor('transparent'))
+        self.pixmap.fill(QColor(255, 255, 255))
+        self.pixmap.setMask(mask)
         self.ico: QIcon = QIcon()
         self.ico.addPixmap(self.pixmap)
         self.rect = QRect(0, 0, 0, 0)

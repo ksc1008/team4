@@ -1,6 +1,8 @@
 import queue
 import os
 import sys
+import time
+
 import openai
 import json
 import urllib.request
@@ -41,12 +43,16 @@ messages = [
 
 
 
+
+
+
 # ChatGPT API 함수 : ChatGPT 응답을 return
 def query_chatGPT(prompt):
     messages.append({"role": "user", "content": prompt})
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=messages
+        messages=messages,
+        temperature=0.2
     )
     answer = completion["choices"][0]["message"]["content"]
     messages.append({"role": "assistant", "content": answer})
@@ -175,6 +181,7 @@ class Producer(QThread):
             if not self.prompt_que.empty():
                 prompt = self.prompt_que.get()
                 try:
+                    self.overlaySignals.on_stt_update.emit(prompt)
                     answer = query_chatGPT(prompt)
                     answer = answer.strip()
                     self.answer_que.put(answer)
