@@ -245,7 +245,8 @@ def complicated_record(): # Google STT 를 이용하여 Streaming 음성인식 �
         num_chars_printed = 0
         for response in responses:
             if not recording:
-                sttprompt.put(transcript + overwrite_chars)
+                #sttprompt.put(transcript + overwrite_chars)
+                MyWindow.prompt_que.put(transcript + overwrite_chars)
                 break
 
             if not response.results:
@@ -284,7 +285,7 @@ class Streaming(QThread):
         while True:
             if not self.streaming_que.empty():
                 data = self.streaming_que.get()
-                SignalManager().overlaySignals.answer_streaming.emit(data)
+                SignalManager().overlaySignals.on_stt_update.emit(data)
 
 class Producer(QThread):
     def __init__(self, prompt_que, answer_que):
@@ -465,9 +466,7 @@ class MyWindow(QObject):
             print('stop record')
             stop()
             self.overlaySignals.start_prompt.emit()
-            prompt = sttprompt.get()
-            MyWindow.prompt_que.put(prompt)
-            MyWindow.audio_que.put(0)
+            # MyWindow.audio_que.put(0)
             self.overlaySignals.on_stop_rec.emit()
 
     @pyqtSlot()
