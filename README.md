@@ -16,9 +16,20 @@ ChatGPT는 현재로서도 매우 좋은 성능을 보이고 있고, 빠르게 �
 - 인터넷 환경에 익숙하지 않거나, 키보드 입력에 불편함을 겪는 사용자. (노약자 / 장애인)
 
 ## 서비스 방식
-![그림3](https://user-images.githubusercontent.com/54511614/233769776-f9ee83d0-28a2-46e9-a9cc-0b4780633291.jpg)
-(full video)
-(4 gifs)
+![그림3](https://user-images.githubusercontent.com/54511614/233769776-f9ee83d0-28a2-46e9-a9cc-0b4780633291.jpg)  
+
+### 시연 영상
+[![Video Label](https://img.youtube.com/vi/nnsuko8Pxw8/0.jpg)](https://youtu.be/nnsuko8Pxw8)
+   
+### Speech-To-Text
+![gif1](https://user-images.githubusercontent.com/54511614/233967342-c339b08e-df20-43d2-bc14-0a7149634011.gif)   
+   
+### 응답 결과 오버레이
+![gif2](https://user-images.githubusercontent.com/54511614/233967385-63ceaab4-0a9c-4b7c-8b5b-66e5167430ce.gif)   
+   
+### 답변 내용 오버레이
+![gif3](https://user-images.githubusercontent.com/54511614/233967411-fb4182e9-2a6b-4c76-86ca-e47345fb2d55.gif)   
+
 
 ## 기대효과
 - 문서 편집, 영상 시청, 게임 등 다양한 작업 중 GPT가 필요한 상황에, 동시성을 확보해 줌으로써, 사용자가 방해받지 않고, 다중 사용 환경을 조성 가능
