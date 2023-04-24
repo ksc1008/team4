@@ -29,6 +29,10 @@ ChatGPT는 현재로서도 매우 좋은 성능을 보이고 있고, 빠르게 �
    
 ### 답변 내용 오버레이
 ![gif3](https://user-images.githubusercontent.com/54511614/233967411-fb4182e9-2a6b-4c76-86ca-e47345fb2d55.gif)   
+   
+### 답변 내용 복사
+![gif4](https://user-images.githubusercontent.com/54511614/233970117-cf5018b1-2143-47a5-9633-d36c89e56b8f.gif)
+
 
 
 ## 기대효과
