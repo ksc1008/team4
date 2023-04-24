@@ -35,6 +35,7 @@ class OverlaySignal(QObject):
     start_prompt = pyqtSignal()
     on_start_rec = pyqtSignal()
     on_stop_rec = pyqtSignal()
+    answer_streaming = pyqtSignal(str)
 
 
 class ProgramSignal(QObject):
