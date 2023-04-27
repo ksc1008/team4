@@ -5,11 +5,13 @@ from PyQt6.QtWidgets import *
 import mainWindow
 from ChatGPT1 import MyWindow
 from keyboardEvent import KeyboardEvents
+import document_loader.indexCreator
 
 
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+    document_loader.indexCreator.createDB()
     keyboardEvent = KeyboardEvents()
     keyboardEvent.start()
 

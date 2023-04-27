@@ -20,6 +20,7 @@ import soundfile as sf
 from multiprocessing import Process, Queue, freeze_support
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
 
+import document_loader.indexCreator
 from keyboardEvent import KeyboardEvents
 
 # from "ui 파일 이름" import Ui_MainWindow
@@ -182,7 +183,8 @@ class Producer(QThread):
                 prompt = self.prompt_que.get()
                 try:
                     self.overlaySignals.on_stt_update.emit(prompt)
-                    answer = query_chatGPT(prompt)
+                    #answer = query_chatGPT(prompt)
+                    answer = document_loader.indexCreator.promptLangchain(prompt)
                     answer = answer.strip()
                     self.answer_que.put(answer)
 
