@@ -1,4 +1,4 @@
-from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain
+from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.llms import OpenAI
@@ -26,7 +26,7 @@ def createDB():
     docs = text_splitter.split_documents(documents)
     embedding = OpenAIEmbeddings()
     db = Chroma.from_documents(documents=docs, embedding=embedding, persist_directory=dbFolder)
-    chroma = db
+    db.persist()
 
 
 def loadDB():
