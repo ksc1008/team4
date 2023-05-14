@@ -5,11 +5,18 @@ from PyQt6.QtWidgets import *
 import mainWindow
 from ChatGPT1 import MyWindow
 from keyboardEvent import KeyboardEvents
+import tray
 
 
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+
+    widget = QWidget()
+    trayIcon = tray.SystemTrayIcon(widget)
+    trayIcon.show()
+    #tray 실행
+
     keyboardEvent = KeyboardEvents()
     keyboardEvent.start()
 
