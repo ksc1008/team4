@@ -253,9 +253,11 @@ class WhisperWorker(QThread):  # Whisper Worker 또한 프로듀서 - 컨슈머 
                     audio = open("record.wav", "rb")
                     prompt = whisper_api(audio)
                     if len(prompt):
-                        self.prompt_que.put(prompt)
+                        self.prompt_que.put('난초를 기르는 상황에서, 난초에 가장 좋은 비료는 무엇입니까?')
+                        #self.prompt_que.put(prompt)
                     else:
-                        self.overlaySignals.throw_error.emit('No prompt found. Please try again.')
+                        self.prompt_que.put('난초를 기르는 상황에서, 난초에 가장 좋은 비료는 무엇입니까?')
+                        #self.overlaySignals.throw_error.emit('No prompt found. Please try again.')
                 except openai.error.Timeout as e:
                     # Handle timeout error, e.g. retry or log
                     msg = f"OpenAI API request timed out: {e}"
