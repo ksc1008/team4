@@ -190,7 +190,7 @@ def loadDB():
     loadMetadata(join(dbFolder, 'metadata.json'))
     iterateDirectory(workspace, '')
     saveMetadata(join(dbFolder, 'metadata.json'))
-    #chroma.persist()
+    chroma.persist()
 
 
 def promptLangchain(query):
