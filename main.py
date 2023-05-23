@@ -6,6 +6,7 @@ import mainWindow
 from ChatGPT1 import MyWindow
 from keyboardEvent import KeyboardEvents
 import tray
+from option_window.gui_gpt import Option_MainWindow
 
 if __name__ == '__main__':
 

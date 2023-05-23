@@ -1,10 +1,12 @@
 import sys
+from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from signalManager import TraySignal, SignalManager
 
 from option_window.gui import Ui_MainWindow as Gui_option
+from option_window.gui_gpt import Option_MainWindow
 
 class SystemTrayIcon(QSystemTrayIcon):
 
@@ -27,7 +29,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.show()
 
     def option_clicked(self):
-        self.traySignals.option_clicked.emit()
+        print("option 실행")
+        self.option = Option_MainWindow()
+        self.option.show()
 
     def exit_program(self):
         self._progApp.exit()
