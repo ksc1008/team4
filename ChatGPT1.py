@@ -22,8 +22,6 @@ import soundfile as sf
 from multiprocessing import Process, Queue, freeze_support
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
 
-from keyboardEvent import KeyboardEvents
-
 # from "ui 파일 이름" import Ui_MainWindow
 
 # ==========================================================
@@ -37,7 +35,7 @@ sttprompt = Queue()
 streaming_queue = Queue()
 
 os.makedirs("history", exist_ok=True)  # history 폴더 생성
-os.environ['OPENAI_API_KEY'] = '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'  #환경변수에 API_KEY값 지정
+os.environ['OPENAI_API_KEY'] = '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'  # 환경변수에 API_KEY값 지정
 openai.api_key = os.getenv("OPENAI_API_KEY")
 #
 messages = [
@@ -47,32 +45,50 @@ messages = [
     }
 ]
 
-#parameter 값을 option.json에 저장
-def save_option():
-    option = {}
-    option['data'] = []
-    option['data'].append({
-        "temperature" : TEMPERATURE,
-        "max_tokens" : MAX_TOKENS
-    })
-    with open("option.json", 'w') as outfile:
-        json.dump(option,outfile)
 
-def change_option():
-    global TEMPERATURE
-    global MAX_TOKENS
-    save_option()
+class Option_data():
+    def __init__(self):
+        try:
+            with open("option.json", "r") as option_file:
+                option_data = json.load(option_file)
+                self.temperature = option_data['parameter'][0]['temperature']
+                self.max_tokens = option_data['parameter'][0]['max_tokens']
 
-#ChatGPT Hyperparameter option.json 파일 열기 / 생성
-try:
-    with open("option.json", "r") as option_file:
-        option_data = json.load(option_file)
-        TEMPERATURE = option_data['data'][0]['temperature']
-        MAX_TOKENS = option_data['data'][0]['max_tokens']
-except FileNotFoundError:
-    TEMPERATURE = 0.5
-    MAX_TOKENS = 2048
-    save_option()
+                self.openai_api_key = option_data['api_key'][0]['openai_api_key']
+
+                self.quit_key = option_data['key'][0]['quit_key']
+
+        except FileNotFoundError:
+            self.temperature = 0.5
+            self.max_tokens = 2048
+
+            self.openai_api_key = ""
+            self.save_option()
+
+    # parameter 값을 option.json에 저장
+    def save_option(self):
+        option = {}
+        option['parameter'] = []
+        option['parameter'].append({
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens
+        })
+        option['api_key'] = []
+        option['api_key'].append({
+            "openai_api_key": self.openai_api_key
+        })
+
+        option['key'] = []
+        option['key'].append({
+            "quit_key": self.quit_key
+        })
+
+        with open("option.json", 'w') as outfile:
+            json.dump(option, outfile)
+
+
+option = Option_data()
+
 
 # ChatGPT API 함수 : ChatGPT 응답을 return
 def query_chatGPT(prompt):
@@ -80,8 +96,8 @@ def query_chatGPT(prompt):
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,
-        temperature=TEMPERATURE,
-        max_tokens=MAX_TOKENS
+        temperature=option.temperature,
+        max_tokens=option.max_tokens
     )
     answer = completion["choices"][0]["message"]["content"]
     messages.append({"role": "assistant", "content": answer})
@@ -102,8 +118,6 @@ def save_history(file_name):
         text = messages
         with open(file_name, 'w', encoding='UTF-8') as f:
             json.dump(text, f)
-
-
 
 
 # ==========================================================
@@ -150,7 +164,7 @@ class MicrophoneStream(object):  # record stream을 chunk단위로 generator yie
             if chunk is None:
                 return
             data = [chunk]
-            if not recording: # 녹음이 끝이 났을 때, 마지막 반복을 빠져나오기 위한 명령어
+            if not recording:  # 녹음이 끝이 났을 때, 마지막 반복을 빠져나오기 위한 명령어
                 return data
 
             while True:
@@ -163,6 +177,7 @@ class MicrophoneStream(object):  # record stream을 chunk단위로 generator yie
                     break
 
             yield b"".join(data)
+
 
 # 녹음 시작 함수
 def start():
@@ -183,7 +198,7 @@ def stop():
     print('stop recording')
 
 
-def complicated_record(): # Google STT 를 이용하여 Streaming 음성인식 처리
+def complicated_record():  # Google STT 를 이용하여 Streaming 음성인식 처리
     language_code = "ko-KR"  # 한국어 코드
 
     client = speech.SpeechClient()
@@ -220,7 +235,6 @@ def complicated_record(): # Google STT 를 이용하여 Streaming 음성인식 �
 
             transcript = result.alternatives[0].transcript
 
-
             overwrite_chars = " " * (num_chars_printed - len(transcript))
 
             data = transcript + overwrite_chars
@@ -232,8 +246,6 @@ def complicated_record(): # Google STT 를 이용하여 Streaming 음성인식 �
             else:
                 streaming_queue.put(data)
                 num_chars_printed = 0
-
-
 
 
 # ==========================================================
@@ -248,7 +260,8 @@ class Streaming(QThread):
         while True:
             if not self.streaming_que.empty():
                 data = self.streaming_que.get()
-                #SignalManager().overlaySignals.answer_streaming.emit(data)
+                # SignalManager().overlaySignals.answer_streaming.emit(data)
+
 
 class Producer(QThread):
     def __init__(self, prompt_que, answer_que):
@@ -316,7 +329,6 @@ class Consumer(QThread):
                 SignalManager().overlaySignals.message_arrived.emit(data)
 
 
-
 class MyWindow(QObject):
     prompt_que = Queue()
     answer_que = Queue()
@@ -325,9 +337,9 @@ class MyWindow(QObject):
     def __init__(self):
         super().__init__()
         # ====================================================
-        #streaming google stt 사용으로 whisper 사용하지 않음
-        #self.whisperWorker = WhisperWorker(MyWindow.audio_que, MyWindow.prompt_que)
-        #self.whisperWorker.start()
+        # streaming google stt 사용으로 whisper 사용하지 않음
+        # self.whisperWorker = WhisperWorker(MyWindow.audio_que, MyWindow.prompt_que)
+        # self.whisperWorker.start()
         self.streaming = Streaming(streaming_queue)
         self.streaming.start()
 
@@ -381,7 +393,7 @@ class MyWindow(QObject):
 
     @pyqtSlot()
     def stop(self):
-        #self.whisperWorker.terminate()
+        # self.whisperWorker.terminate()
         self.producer.terminate()
         self.consumer.terminate()
         self.streaming.terminate()

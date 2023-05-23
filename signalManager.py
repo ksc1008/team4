@@ -40,3 +40,6 @@ class OverlaySignal(QObject):
 
 class ProgramSignal(QObject):
     stop = pyqtSignal()
+
+class TraySignal(QObject):
+    option_clicked = pyqtSignal()
