@@ -5,6 +5,7 @@ from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
 
 # 단축키
 from signalManager import SignalManager
+from option_window.optiondata import Option_data
 
 
 class KeyboardEvents(QThread):
