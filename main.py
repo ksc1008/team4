@@ -23,6 +23,7 @@ if __name__ == '__main__':
     window = mainWindow.MainWindow(app)
     # window.showFullScreen()
 
+
     try:
         sys.exit(app.exec())
     except SystemExit:

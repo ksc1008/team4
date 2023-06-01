@@ -11,13 +11,15 @@ from keyboardEvent import KeyboardEvents
 from overlay_animations import animator, animation
 from overlay_objects.overlayObject import OverlayObject
 from overlay_objects.overlayLabel import OverlayLabel
-from signalManager import SignalManager, KeyboardSignal, OverlaySignal, ProgramSignal
+from signalManager import SignalManager, KeyboardSignal, OverlaySignal, ProgramSignal, TraySignal
+from option_window.gui_gpt import Option_MainWindow
 from textLabel import TextLabel
 
 import overlay_objects.overlayCircle
 import overlay_objects.overlayPixmap
 import overlay_objects.overlayCheck
 import demo
+import tray
 
 
 class MainWindow(QMainWindow):
@@ -38,6 +40,7 @@ class MainWindow(QMainWindow):
         self.keyboardSignal = KeyboardSignal
         self.overlaySignal = OverlaySignal
         self.programSignal = ProgramSignal
+        self.traySignal = TraySignal
 
         self.animator = animator.Animator(self)
         self.animator.start()
@@ -51,6 +54,8 @@ class MainWindow(QMainWindow):
 
         self.initiateWindow()
         self.initiateSignals()
+
+        self.show()
 
     def initiateWindow(self):
         self.setWindowFlags(
@@ -67,6 +72,7 @@ class MainWindow(QMainWindow):
         self.keyboardSignal = SignalManager().keyboardSignals
         self.overlaySignal = SignalManager().overlaySignals
         self.programSignal = SignalManager().programSignals
+        self.traySignal = SignalManager().traySignals
 
         self.keyboardSignal.quit_key.connect(self.shortcut_quit_key)
         self.keyboardSignal.show_content_key.connect(self.shortcut_content_key)
@@ -77,6 +83,9 @@ class MainWindow(QMainWindow):
         self.overlaySignal.start_prompt.connect(self.onPromptStart)
         self.overlaySignal.on_start_rec.connect(self.on_rec_start)
         self.overlaySignal.on_stop_rec.connect(self.on_rec_end)
+
+        self.traySignal.option_clicked.connect(self.open_trayoption)
+
 
     # 오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -96,6 +105,10 @@ class MainWindow(QMainWindow):
     def finAllObj(self):
         for o in self.objects:
             o.destroy()
+
+    def open_trayoption(self):
+        option = Option_MainWindow()
+        option.exec()
 
     @pyqtSlot()
     def shortcut_quit_key(self):  # Ctrl + Q 입력시 프로그램 종료

@@ -8,48 +8,84 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import *
+from option_window.optiondata import Option_data
+import sys
+from option_window.optiondata import Option_data
 
-class Model_Dialog(QDialog,QWidget):
+class Model_Dialog(QWidget):
     def __init__(self):
         super().__init__()
+        self.option_data = Option_data()
         self.setupUi()
+        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.show()
 
     def setupUi(self):
-        self.setObjectName("Dialog")
-        self.resize(245, 320)
-        self.buttonBox = QtWidgets.QDialogButtonBox(parent=self)
-        self.buttonBox.setGeometry(QtCore.QRect(10, 270, 221, 41))
-        self.buttonBox.setOrientation(QtCore.Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel|QtWidgets.QDialogButtonBox.StandardButton.Ok)
-        self.buttonBox.setObjectName("buttonBox")
-        self.checkBox = QtWidgets.QCheckBox(parent=self)
-        self.checkBox.setGeometry(QtCore.QRect(50, 50, 76, 20))
+        self.setObjectName("Model")
+        self.resize(199, 209)
+        self.setMinimumSize(QtCore.QSize(199, 209))
+        self.setMaximumSize(QtCore.QSize(199, 209))
+        self.checkBox = QtWidgets.QCheckBox(self)
+        self.checkBox.setGeometry(QtCore.QRect(40, 20, 100, 41))
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(11)
         self.checkBox.setFont(font)
         self.checkBox.setObjectName("checkBox")
-        self.checkBox_2 = QtWidgets.QCheckBox(parent=self)
-        self.checkBox_2.setGeometry(QtCore.QRect(50, 170, 76, 20))
+        self.checkBox_2 = QtWidgets.QCheckBox(self)
+        self.checkBox_2.setGeometry(QtCore.QRect(40, 70, 150, 41))
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(11)
         self.checkBox_2.setFont(font)
         self.checkBox_2.setObjectName("checkBox_2")
-        self.checkBox_3 = QtWidgets.QCheckBox(parent=self)
-        self.checkBox_3.setGeometry(QtCore.QRect(50, 110, 76, 20))
+        self.checkBox_3 = QtWidgets.QCheckBox(self)
+        self.checkBox_3.setGeometry(QtCore.QRect(40, 120, 81, 41))
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(11)
         self.checkBox_3.setFont(font)
         self.checkBox_3.setObjectName("checkBox_3")
+        self.pushButton = QtWidgets.QPushButton(self)
+        self.pushButton.setGeometry(QtCore.QRect(110, 170, 75, 24))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.savebutton_clicked)
+
+        self.checkBox.pressed.connect(self.clickedcheck)
+        self.checkBox_2.pressed.connect(self.clickedcheck)
+        self.checkBox_3.pressed.connect(self.clickedcheck)
+
 
         self.retranslateUi()
-        self.buttonBox.accepted.connect(self.accept) # type: ignore
-        self.buttonBox.rejected.connect(self.reject) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.checkBox.setText(_translate("Dialog", "GPT-3"))
-        self.checkBox_2.setText(_translate("Dialog", "GPT-4"))
-        self.checkBox_3.setText(_translate("Dialog", "GPT-3.5"))
+        self.setWindowTitle(_translate("Form", "Model"))
+        self.checkBox.setText(_translate("Form", "Wikipedia"))
+        self.checkBox_2.setText(_translate("Form", "GoogleSearch"))
+        self.checkBox_3.setText(_translate("Form", ""))
+        self.pushButton.setText(_translate("Form", "확인"))
 
+
+        if self.option_data.model == self.checkBox.text():
+            self.checkBox.setChecked(True)
+        if self.option_data.model == self.checkBox_2.text():
+            self.checkBox_2.setChecked(True)
+
+    def savebutton_clicked(self):
+        if self.checkBox.isChecked():
+            self.option_data.model = self.checkBox.text()
+        if self.checkBox_2.isChecked():
+            self.option_data.model = self.checkBox_2.text()
+        self.option_data.save_option()
+        print("save model name")
+        self.close()
+
+    def clickedcheck(self):
+        self.checkBox.setChecked(False)
+        self.checkBox_2.setChecked(False)
+        self.checkBox_3.setChecked(False)
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    Option = Model_Dialog()
+    sys.exit(app.exec())

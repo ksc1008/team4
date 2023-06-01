@@ -16,6 +16,8 @@ class SignalManager(object):
             self.keyboardSignals = KeyboardSignal()
             self.overlaySignals = OverlaySignal()
             self.programSignals = ProgramSignal()
+            self.traySignals = TraySignal()
+            self.optionSignals = OptionSignal()
             print('signal manager has init')
             cls._init = True
 
@@ -40,3 +42,14 @@ class OverlaySignal(QObject):
 
 class ProgramSignal(QObject):
     stop = pyqtSignal()
+
+class TraySignal(QObject):
+    option_clicked = pyqtSignal()
+
+class OptionSignal(QObject):
+    current_path_saved = pyqtSignal(str)
+    current_checked_api = pyqtSignal(str)
+    current_parameter = pyqtSignal(list)
+    changed_path_saved = pyqtSignal(str)
+    changed_checked_api = pyqtSignal(str)
+    changed_parameter = pyqtSignal(list)

@@ -7,49 +7,64 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import *
+from option_window.optiondata import Option_data
+from PyQt6.QtGui import *
+import sys
 
 
-class Parameter_MainWindow(QMainWindow):
+class Parameter_MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.option_data = Option_data()
         self.setupUi()
         self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.show()
 
     def setupUi(self):
-        self.setObjectName("MainWindow")
-        self.setEnabled(True)
-        self.resize(231, 178)
-        self.setMinimumSize(QtCore.QSize(231, 178))
-        self.setMaximumSize(QtCore.QSize(231, 178))
-        self.centralwidget = QtWidgets.QWidget(parent=self)
-        self.centralwidget.setObjectName("centralwidget")
-        self.label = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(55, 40, 31, 16))
+        self.setObjectName("Form")
+        self.resize(240, 159)
+        self.setMinimumSize(QtCore.QSize(240, 159))
+        self.setMaximumSize(QtCore.QSize(240, 159))
+        self.label = QtWidgets.QLabel(self)
+        self.label.setGeometry(QtCore.QRect(60, 30, 31, 16))
         self.label.setObjectName("label")
-        self.label_2 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(15, 80, 71, 20))
-        self.label_2.setObjectName("label_2")
-        self.lineEdit = QtWidgets.QLineEdit(parent=self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(90, 40, 113, 21))
+        self.label.setText(str(self.option_data.temperature))
+        self.lineEdit = QtWidgets.QLineEdit(self)
+        self.lineEdit.setGeometry(QtCore.QRect(90, 30, 113, 21))
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit_2 = QtWidgets.QLineEdit(parent=self.centralwidget)
-        self.lineEdit_2.setGeometry(QtCore.QRect(90, 80, 113, 21))
+        self.lineEdit.setText(str(self.option_data.temperature))
+        self.lineEdit.setValidator(QDoubleValidator(0,10,1,self))
+        self.label_2 = QtWidgets.QLabel(self)
+        self.label_2.setGeometry(QtCore.QRect(20, 70, 71, 20))
+        self.label_2.setObjectName("label_2")
+        self.lineEdit_2 = QtWidgets.QLineEdit(self)
+        self.lineEdit_2.setGeometry(QtCore.QRect(90, 70, 113, 21))
         self.lineEdit_2.setObjectName("lineEdit_2")
-        self.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=self)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 231, 22))
-        self.menubar.setObjectName("menubar")
-        self.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=self)
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
+        self.lineEdit_2.setText(str(self.option_data.max_tokens))
+        self.lineEdit_2.setValidator(QIntValidator(self))
+        self.pushButton_2 = QtWidgets.QPushButton(self)
+        self.pushButton_2.setGeometry(QtCore.QRect(150, 120, 75, 24))
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_2.clicked.connect(self.savebutton_clicked)
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.label.setText(_translate("MainWindow", "온도"))
-        self.label_2.setText(_translate("MainWindow", "길이 패널티"))
+        self.setWindowTitle(_translate("Form", "Form"))
+        self.label.setText(_translate("Form", "온도"))
+        self.label_2.setText(_translate("Form", "길이 패널티"))
+        self.pushButton_2.setText(_translate("Form", "저장"))
 
+    def savebutton_clicked(self):
+        self.option_data.temperature = self.lineEdit.text()
+        self.option_data.max_tokens = self.lineEdit_2.text()
+        print("save hyperparameter")
+        self.option_data.save_option()
+        self.close()
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    Option = Parameter_MainWindow()
+    sys.exit(app.exec())
