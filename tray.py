@@ -31,7 +31,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def option_clicked(self):
         print("option 실행")
         self.traySignals.option_clicked.emit()
-        #self.option = Option_MainWindow()
+        self.option = Option_MainWindow()
 
     def exit_program(self):
         self._progApp.exit()

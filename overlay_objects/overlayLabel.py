@@ -4,8 +4,10 @@ from PyQt6.QtCore import QRect, QRectF
 
 import mainWindow
 from overlay_animations.animation import Animation
+from signalManager import SignalManager
 from overlay_objects.overlayObject import OverlayObject
 from overlay_animations import animation
+from optiondata import Option_data
 
 
 class OverlayLabel(OverlayObject):
@@ -18,13 +20,17 @@ class OverlayLabel(OverlayObject):
         self.manualColor = QColor(255, 255, 255, 150)
         self.isContent = isContent
 
+        self.optiondata = Option_data()
+        self.optionSignals = SignalManager().optionSignals
+        self.optionSignals.changed_key.connect(self.key_update)
+
         self.boxWidth = 450
         self.boxHeight = 85
         self.fontSize = 16
         self.manualFontSize = 12
 
-        self.manualLeft = 'Ctrl + F3 : show text'
-        self.manualRight = 'Ctrl + F4 : copy text'
+        self.manualLeft = self.optiondata.show_content_key_combination + " + " + self.optiondata.show_content_key +  ' : show text'
+        self.manualRight = self.optiondata.copy_key_combination + " + " + self.optiondata.copy_key +  ': copy text'
 
         self.left = 500
         self.top = 200
@@ -114,6 +120,11 @@ class OverlayLabel(OverlayObject):
 
     def removeAnim(self, anim):
         self._anims.remove(anim)
+
+    # 키 업데이트 시 값 로딩
+    def key_update(self):
+        self.optiondata.load_option()
+        self.__init__()
 
     def getContentOpenAnimation(self):
 

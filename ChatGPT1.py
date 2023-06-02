@@ -23,7 +23,7 @@ from multiprocessing import Process, Queue, freeze_support
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
 
 from keyboardEvent import KeyboardEvents
-
+from optiondata import Option_data
 # from "ui 파일 이름" import Ui_MainWindow
 
 # ==========================================================
@@ -36,43 +36,18 @@ CHUNK = int(RATE / 10)  # 100ms
 sttprompt = Queue()
 streaming_queue = Queue()
 
-os.makedirs("history", exist_ok=True)  # history 폴더 생성
-os.environ['OPENAI_API_KEY'] = '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'  #환경변수에 API_KEY값 지정
-openai.api_key = os.getenv("OPENAI_API_KEY")
-#
+option_data = Option_data()
+
 messages = [
     {
         "role": "system",
         "content": "You are a helpful assistant who is good at detailing."
     }
 ]
-
-#parameter 값을 option.json에 저장
-def save_option():
-    option = {}
-    option['data'] = []
-    option['data'].append({
-        "temperature" : TEMPERATURE,
-        "max_tokens" : MAX_TOKENS
-    })
-    with open("option.json", 'w') as outfile:
-        json.dump(option,outfile)
-
-def change_option():
-    global TEMPERATURE
-    global MAX_TOKENS
-    save_option()
-
-#ChatGPT Hyperparameter option.json 파일 열기 / 생성
-try:
-    with open("option.json", "r") as option_file:
-        option_data = json.load(option_file)
-        TEMPERATURE = option_data['data'][0]['temperature']
-        MAX_TOKENS = option_data['data'][0]['max_tokens']
-except FileNotFoundError:
-    TEMPERATURE = 0.5
-    MAX_TOKENS = 2048
-    save_option()
+os.makedirs("history", exist_ok=True)  # history 폴더 생성
+os.environ['OPENAI_API_KEY'] = option_data.openai_api_key  #환경변수에 API_KEY값 지정
+openai.api_key = os.getenv("OPENAI_API_KEY")
+#
 
 # ChatGPT API 함수 : ChatGPT 응답을 return
 def query_chatGPT(prompt):
@@ -80,8 +55,8 @@ def query_chatGPT(prompt):
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,
-        temperature=TEMPERATURE,
-        max_tokens=MAX_TOKENS
+        temperature=0.5,
+        max_tokens=2048
     )
     answer = completion["choices"][0]["message"]["content"]
     messages.append({"role": "assistant", "content": answer})

@@ -8,14 +8,17 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import *
-from option_window.optiondata import Option_data
 import sys
-from option_window.optiondata import Option_data
+from optiondata import Option_data
+from signalManager import SignalManager
 
 class Model_Dialog(QWidget):
     def __init__(self):
         super().__init__()
+
         self.option_data = Option_data()
+        self.optionSignals = SignalManager().optionSignals
+
         self.setupUi()
         self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.show()
@@ -76,6 +79,7 @@ class Model_Dialog(QWidget):
         if self.checkBox_2.isChecked():
             self.option_data.model = self.checkBox_2.text()
         self.option_data.save_option()
+        self.optionSignals.changed_model.emit()
         print("save model name")
         self.close()
 

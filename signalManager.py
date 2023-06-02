@@ -46,10 +46,10 @@ class ProgramSignal(QObject):
 class TraySignal(QObject):
     option_clicked = pyqtSignal()
 
+#옵션 값 변경 Signal
 class OptionSignal(QObject):
-    current_path_saved = pyqtSignal(str)
-    current_checked_api = pyqtSignal(str)
-    current_parameter = pyqtSignal(list)
-    changed_path_saved = pyqtSignal(str)
-    changed_checked_api = pyqtSignal(str)
-    changed_parameter = pyqtSignal(list)
+    changed_path_saved = pyqtSignal()
+    changed_checked_api = pyqtSignal()
+    changed_parameter = pyqtSignal()
+    changed_key = pyqtSignal()
+    changed_model = pyqtSignal()
