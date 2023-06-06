@@ -45,6 +45,8 @@ class ProgramSignal(QObject):
 
 class TraySignal(QObject):
     option_clicked = pyqtSignal()
+    history_selected = pyqtSignal(str)
+    history_save = pyqtSignal()
 
 #옵션 값 변경 Signal
 class OptionSignal(QObject):

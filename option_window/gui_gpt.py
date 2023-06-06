@@ -16,7 +16,7 @@ from option_window.gui_gpt_hyperparameter import Parameter_MainWindow
 import sys
 
 
-class Option_MainWindow(QDialog):
+class Option_MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setupUi()

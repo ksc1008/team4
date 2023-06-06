@@ -63,7 +63,6 @@ class MainWindow(QMainWindow):
         self.setWindowFlags(
             Qt.WindowType.WindowStaysOnTopHint |
             Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.Tool |
             Qt.WindowType.WindowTransparentForInput)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground, True)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)

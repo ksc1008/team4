@@ -27,7 +27,8 @@ from optiondata import Option_data
 # from "ui 파일 이름" import Ui_MainWindow
 
 # ==========================================================
-from signalManager import SignalManager, KeyboardSignal, OverlaySignal
+from signalManager import SignalManager, KeyboardSignal, OverlaySignal, TraySignal
+from history_management import History_manage
 
 # Audio recording parameters
 RATE = 16000
@@ -37,6 +38,7 @@ sttprompt = Queue()
 streaming_queue = Queue()
 
 option_data = Option_data()
+history = History_manage()
 
 messages = [
     {
@@ -61,24 +63,6 @@ def query_chatGPT(prompt):
     answer = completion["choices"][0]["message"]["content"]
     messages.append({"role": "assistant", "content": answer})
     return answer
-
-
-# QFileDialog로 부터 file_name을 입력받아 history를 오픈
-def open_history(file_name):
-    if file_name:
-        with open(file_name, 'r') as f:
-            data = json.load(f)
-    return data
-
-
-# QfileDialog로 부터 file_name을 입력받아 history를 저장
-def save_history(file_name):
-    if file_name:
-        text = messages
-        with open(file_name, 'w', encoding='UTF-8') as f:
-            json.dump(text, f)
-
-
 
 
 # ==========================================================
@@ -315,6 +299,7 @@ class MyWindow(QObject):
         # ====================================================
         self.keyboardSignals = KeyboardSignal
         self.overlaySignals = OverlaySignal
+        self.traySignals = TraySignal
 
         self.readyToRecord = True
         self.recording = False
@@ -324,12 +309,24 @@ class MyWindow(QObject):
     def initiateSignals(self):
         self.keyboardSignals = SignalManager().keyboardSignals
         self.overlaySignals = SignalManager().overlaySignals
+        self.traySignals = SignalManager().traySignals
         self.keyboardSignals.mic_key.connect(self.on_record)
         self.keyboardSignals.release_mic_key.connect(self.off_record)
+        self.traySignals.history_selected.connect(self.history_updated)
+        self.traySignals.history_save.connect(self.history_save)
 
         # better way?
         self.overlaySignals.message_arrived.connect(self.reset)
         self.overlaySignals.throw_error.connect(self.reset)
+
+    def history_updated(self, path: str):
+        global messages
+        messages = history.open_history(path)
+        print(messages)
+
+    def history_save(self):
+        history.save_history(messages)
+        print("save history")
 
     # 레코드 시작 슬롯
     @pyqtSlot()

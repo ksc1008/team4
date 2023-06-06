@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import *
 import mainWindow
 from ChatGPT1 import MyWindow
 from keyboardEvent import KeyboardEvents
+from signalManager import SignalManager
 import tray
 from option_window.gui_gpt import Option_MainWindow
 
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     try:
         sys.exit(app.exec())
     except SystemExit:
+        SignalManager().traySignals.history_save.emit()
         window.close()
 
     print('window closed')

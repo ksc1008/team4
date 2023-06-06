@@ -138,7 +138,5 @@ class Option_data(QObject):
 
             self.save_option()
 
-
-
 if __name__ == "__main__":
     option = Option_data()
