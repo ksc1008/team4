@@ -8,10 +8,14 @@ from keyboardEvent import KeyboardEvents
 from signalManager import SignalManager
 import tray
 from option_window.gui_gpt import Option_MainWindow
+import document_loader.indexCreator
+
 
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+    #document_loader.indexCreator.createDB()
+    document_loader.indexCreator.loadDB()
 
     widget = QWidget()
     trayIcon = tray.SystemTrayIcon(app, widget)
