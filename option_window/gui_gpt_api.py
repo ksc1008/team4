@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtWidgets
 from optiondata import Option_data
 from signalManager import SignalManager
 from PyQt6.QtWidgets import *
+import sys
 
 class Api_MainWindow(QWidget):
     def __init__(self):
@@ -82,8 +83,8 @@ class Api_MainWindow(QWidget):
         self.pushButton_3.setText(_translate("Form", "추가"))
         self.label_4.setText(_translate("Form", "추가된 API"))
         self.label_7.setText(_translate("Form", "API"))
-        self.label_5.setText(_translate("Form", "TextLabel"))
-        self.label_6.setText(_translate("Form", "TextLabel"))
+        #self.label_5.setText(_translate("Form", "TextLabel"))
+        #self.label_6.setText(_translate("Form", "TextLabel"))
         self.pushButton_2.setText(_translate("Form", "저장"))
 
     #저장버튼 클릭 이벤트
@@ -94,11 +95,21 @@ class Api_MainWindow(QWidget):
         print("save api key")
         print(self.lineEdit_3.text())
         self.close()
+
     #경로추가 버튼 클릭 이벤트
     def savepath_clicked(self):
-        self.option_data.path = self.lineEdit.text()
+        dir = QFileDialog.getExistingDirectory(self, "select directory")
+        if not dir:
+            return -1
+        self.option_data.path = dir
+        self.lineEdit.setText(dir)
         self.option_data.save_option()
         self.optionSignals.changed_path_saved.emit()
         print("save path")
         print(self.lineEdit.text())
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    api = Api_MainWindow()
+    sys.exit(app.exec())
 

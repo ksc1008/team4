@@ -1,5 +1,6 @@
 import json
 import time
+import os
 
 messages = [
     {
@@ -12,6 +13,7 @@ messages.append({"role": "user", "content": "prompt"})
 
 class History_manage(object):
     def __init__(self):
+        os.makedirs("history", exist_ok=True)
         self.name_update()
     def name_update(self):
         now = time

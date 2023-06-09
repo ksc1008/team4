@@ -51,10 +51,6 @@ class Model_Dialog(QWidget):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.clicked.connect(self.savebutton_clicked)
 
-        self.checkBox.pressed.connect(self.clickedcheck)
-        self.checkBox_2.pressed.connect(self.clickedcheck)
-        self.checkBox_3.pressed.connect(self.clickedcheck)
-
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -64,29 +60,28 @@ class Model_Dialog(QWidget):
         self.setWindowTitle(_translate("Form", "Model"))
         self.checkBox.setText(_translate("Form", "Wikipedia"))
         self.checkBox_2.setText(_translate("Form", "GoogleSearch"))
-        self.checkBox_3.setText(_translate("Form", ""))
+        self.checkBox_3.setText(_translate("Form", "Localfile"))
         self.pushButton.setText(_translate("Form", "확인"))
 
 
-        if self.option_data.model == self.checkBox.text():
+        if self.option_data.wikipedia == True:
             self.checkBox.setChecked(True)
-        if self.option_data.model == self.checkBox_2.text():
+        if self.option_data.googlesearch == True:
             self.checkBox_2.setChecked(True)
+        if self.option_data.local == True:
+            self.checkBox_3.setChecked(True)
 
     def savebutton_clicked(self):
         if self.checkBox.isChecked():
-            self.option_data.model = self.checkBox.text()
+            self.option_data.wikipedia = True
         if self.checkBox_2.isChecked():
-            self.option_data.model = self.checkBox_2.text()
+            self.option_data.googlesearch = True
+        if self.checkBox_3.isChecked():
+            self.option_data.local = True
         self.option_data.save_option()
         self.optionSignals.changed_model.emit()
         print("save model name")
         self.close()
-
-    def clickedcheck(self):
-        self.checkBox.setChecked(False)
-        self.checkBox_2.setChecked(False)
-        self.checkBox_3.setChecked(False)
 
 
 if __name__ == "__main__":
