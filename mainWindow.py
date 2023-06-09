@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
         self._micImage = None
         self._micCircleWave = None
         self._contentLabel = None
+        self._bottomText = None
 
         self.initiateWindow()
         self.initiateSignals()
@@ -84,6 +85,7 @@ class MainWindow(QMainWindow):
         self.overlaySignal.start_prompt.connect(self.onPromptStart)
         self.overlaySignal.on_start_rec.connect(self.on_rec_start)
         self.overlaySignal.on_stop_rec.connect(self.on_rec_end)
+        self.overlaySignal.on_stt_update.connect(self.onSTTUpdate)
 
 
     # 오버라이드 할 paintEvent
@@ -120,10 +122,11 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_rec_start(self):  # Ctrl + M 눌리면
         print("pressing")
-        mic_width = 200
-        mic_height = 200
+        mic_width = 150
+        mic_height = 150
         if self._micImage is None:
             self._micCircle = overlay_objects.overlayCircle.OverlayCircle()
+            self._micCircle.setColor(QColor(0, 0, 0, 200), QColor(0, 0, 0, 200))
             self._micImage = overlay_objects.overlayPixmap.OverlayPixmap('images/mic.png')
             self._micCircleWave = overlay_objects.overlayCircle.OverlayCircle()
             self.addObject(self._micCircleWave)
@@ -139,6 +142,7 @@ class MainWindow(QMainWindow):
 
             self.addObject(self._micCircle)
             self.addObject(self._micImage)
+            self._micCircleWave.outline = QColor(180, 180, 180, 255)
 
             self.animator.addAnim(animC1)
             self.animator.addAnim(animM1)
@@ -180,6 +184,14 @@ class MainWindow(QMainWindow):
         print(e)
         self.popBalloon(e, QColor(0xcc, 0, 0, 200), 3000)
         self.onPromptEnd()
+
+    @pyqtSlot()
+    def onPromptStart(self):
+        self.showLoadingCircle()
+
+    @pyqtSlot(str)
+    def onSTTUpdate(self, text):
+        self.setBottomText(text)
 
     def popCheckIn(self):
         check_width = 100
@@ -281,9 +293,25 @@ class MainWindow(QMainWindow):
             self._loadingCircle.destroy()
             self._loadingCircle = None
 
-    @pyqtSlot()
-    def onPromptStart(self):
-        self.showLoadingCircle()
-
     def onPromptEnd(self):
         self.hideLoadingCircle()
+        self.hideBottomText()
+
+    def setBottomText(self, text):
+        print('bottom text set!')
+        if self._bottomText is None:
+            bt = OverlayLabel(text, True)
+            self._bottomText = bt
+            self._bottomText.setRect(QRectF(self.width() / 4, self.height() / 4 * 3 + 30, self.width() / 2, 200))
+            self._bottomText.align = PyQt6.QtCore.Qt.AlignmentFlag.AlignHCenter
+            self._bottomText.textOpacity = 1
+            self._bottomText.opacity = 1
+            self.addObject(bt)
+        else:
+            self._bottomText.text = text
+
+    def hideBottomText(self):
+        print('bottom text hide!')
+        if self._bottomText is not None:
+            self._bottomText.destroy()
+            self._bottomText = None
