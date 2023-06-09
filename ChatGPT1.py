@@ -56,7 +56,6 @@ messages = [
 ]
 os.makedirs("history", exist_ok=True)  # history 폴더 생성
 os.environ['OPENAI_API_KEY'] = option_data.openai_api_key  #환경변수에 API_KEY값 지정
-openai.api_key = os.getenv("OPENAI_API_KEY")
 #
 
 mutex = QMutex()

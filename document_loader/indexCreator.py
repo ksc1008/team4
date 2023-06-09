@@ -18,11 +18,19 @@ import json
 
 from os.path import isdir, isfile, join
 from os import listdir
+import openai
+from optiondata import Option_data
+from signalManager import SignalManager
 
+loaded = False
 dbFolder = './vectorstore/'
 workspace = './workspace/'
 metadatas = dict()
 chroma: Chroma
+
+option_data = Option_data()
+openai.api_key = option_data.openai_api_key
+option_data.optionSignals.changed_checked_api.connect(lambda: reloadDB())
 
 
 def getExtension(fname: str) -> str:
@@ -183,15 +191,28 @@ def createDB():
 
 
 def loadDB():
+    global loaded
+    if loaded:
+        return
     global chroma
 
-    embedding = OpenAIEmbeddings()
-    chroma = Chroma(persist_directory=dbFolder, embedding_function=embedding)
-    loadMetadata(join(dbFolder, 'metadata.json'))
-    iterateDirectory(workspace, '')
-    saveMetadata(join(dbFolder, 'metadata.json'))
-    chroma.persist()
+    try:
+        embedding = OpenAIEmbeddings()
+        chroma = Chroma(persist_directory=dbFolder, embedding_function=embedding)
+        loadMetadata(join(dbFolder, 'metadata.json'))
+        iterateDirectory(workspace, '')
+        saveMetadata(join(dbFolder, 'metadata.json'))
+        chroma.persist()
+        loaded = True
+    except:
+        print('failed to loadDB')
 
+
+def reloadDB():
+    print('reloading DB')
+    option_data.load_option()
+    openai.api_key = option_data.openai_api_key
+    loadDB()
 
 def promptLangchain(query):
     global chroma
@@ -202,7 +223,7 @@ def promptLangchain(query):
     openai = OpenAI()
     openai.max_tokens = 256
     qa = RetrievalQA.from_chain_type(
-        llm=ChatOpenAI(temperature=0),
+        llm=ChatOpenAI(temperature=option_data.temperature),
         chain_type='stuff',
         retriever=retriever
     )
