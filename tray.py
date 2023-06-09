@@ -5,7 +5,6 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from signalManager import TraySignal, SignalManager
 
-from option_window.gui import Ui_MainWindow as Gui_option
 from option_window.gui_gpt import Option_MainWindow
 from history_widget import History_widget
 

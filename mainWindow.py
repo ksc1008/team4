@@ -7,19 +7,15 @@ from PyQt6 import QtCore, QtGui
 import overlay_objects.loadingCircle
 import pyperclip
 
-from keyboardEvent import KeyboardEvents
 from overlay_animations import animator, animation
 from overlay_objects.overlayObject import OverlayObject
 from overlay_objects.overlayLabel import OverlayLabel
 from signalManager import SignalManager, KeyboardSignal, OverlaySignal, ProgramSignal, TraySignal
 from optiondata import Option_data
-from textLabel import TextLabel
 
 import overlay_objects.overlayCircle
 import overlay_objects.overlayPixmap
 import overlay_objects.overlayCheck
-import demo
-import tray
 
 
 class MainWindow(QMainWindow):
