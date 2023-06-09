@@ -12,7 +12,7 @@ from overlay_animations import animator, animation
 from overlay_objects.overlayObject import OverlayObject
 from overlay_objects.overlayLabel import OverlayLabel
 from signalManager import SignalManager, KeyboardSignal, OverlaySignal, ProgramSignal, TraySignal
-from option_window.gui_gpt import Option_MainWindow
+from optiondata import Option_data
 from textLabel import TextLabel
 
 import overlay_objects.overlayCircle
@@ -55,13 +55,14 @@ class MainWindow(QMainWindow):
         self.initiateWindow()
         self.initiateSignals()
 
+        self.optiondata = Option_data()
+
         self.show()
 
     def initiateWindow(self):
         self.setWindowFlags(
             Qt.WindowType.WindowStaysOnTopHint |
             Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.Tool |
             Qt.WindowType.WindowTransparentForInput)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground, True)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
@@ -84,8 +85,6 @@ class MainWindow(QMainWindow):
         self.overlaySignal.on_start_rec.connect(self.on_rec_start)
         self.overlaySignal.on_stop_rec.connect(self.on_rec_end)
 
-        self.traySignal.option_clicked.connect(self.open_trayoption)
-
 
     # 오버라이드 할 paintEvent
     def paintEvent(self, event=None):
@@ -105,10 +104,6 @@ class MainWindow(QMainWindow):
     def finAllObj(self):
         for o in self.objects:
             o.destroy()
-
-    def open_trayoption(self):
-        option = Option_MainWindow()
-        option.exec()
 
     @pyqtSlot()
     def shortcut_quit_key(self):  # Ctrl + Q 입력시 프로그램 종료

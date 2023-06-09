@@ -8,12 +8,17 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import *
+from signalManager import SignalManager
+from optiondata import Option_data
 import sys
 
 
 class Keyboard_MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.option_data = Option_data()
+        self.optionSignals = SignalManager().optionSignals
+
         self.setupUi()
         self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.show()
@@ -107,6 +112,14 @@ class Keyboard_MainWindow(QWidget):
         self.pushButton_2.setMinimumSize(QtCore.QSize(75, 0))
         self.pushButton_2.setObjectName("pushButton_2")
 
+        self.keySequenceEdit.setKeySequence(self.option_data.pressing_mic_key)
+        self.keySequenceEdit_2.setKeySequence(self.option_data.show_content_key)
+        self.keySequenceEdit_3.setKeySequence(self.option_data.copy_key)
+        self.keySequenceEdit_4.setKeySequence(self.option_data.quit_key)
+
+        self.pushButton_2.clicked.connect(self.savebutton_clicked)
+
+
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -126,10 +139,118 @@ class Keyboard_MainWindow(QWidget):
         self.checkBox4_3.setText(_translate("Form", "Shift"))
         self.checkBox4_2.setText(_translate("Form", "Alt"))
         self.checkBox4_1.setText(_translate("Form", "Ctrl"))
-        self.label_4.setText(_translate("Form", "답변 창 띄우기"))
-        self.label_5.setText(_translate("Form", "답변 창 닫기"))
+        self.label_4.setText(_translate("Form", "답변 창 띄우기/닫기"))
+        self.label_5.setText(_translate("Form", "답변 복사"))
         self.label_6.setText(_translate("Form", "프로그램 종료"))
         self.pushButton_2.setText(_translate("Form", "저장"))
+
+        self.setcheckbox()
+
+    def setcheckbox(self):
+        if self.checkBox1_1.text() == self.option_data.pressing_mic_key_combination:
+            self.checkBox1_1.setChecked(True)
+        if self.checkBox1_2.text() == self.option_data.pressing_mic_key_combination:
+            self.checkBox1_2.setChecked(True)
+        if self.checkBox1_3.text() == self.option_data.pressing_mic_key_combination:
+            self.checkBox1_3.setChecked(True)
+
+        if self.checkBox2_1.text() == self.option_data.show_content_key_combination:
+            self.checkBox2_1.setChecked(True)
+        if self.checkBox2_2.text() == self.option_data.show_content_key_combination:
+            self.checkBox2_2.setChecked(True)
+        if self.checkBox2_3.text() == self.option_data.show_content_key_combination:
+            self.checkBox2_3.setChecked(True)
+
+        if self.checkBox3_1.text() == self.option_data.copy_key_combination:
+            self.checkBox3_1.setChecked(True)
+        if self.checkBox3_2.text() == self.option_data.copy_key_combination:
+            self.checkBox3_2.setChecked(True)
+        if self.checkBox3_3.text() == self.option_data.copy_key_combination:
+            self.checkBox3_3.setChecked(True)
+
+        if self.checkBox4_1.text() == self.option_data.quit_key_combination:
+            self.checkBox4_1.setChecked(True)
+        if self.checkBox4_2.text() == self.option_data.quit_key_combination:
+            self.checkBox4_2.setChecked(True)
+        if self.checkBox4_3.text() == self.option_data.quit_key_combination:
+            self.checkBox4_3.setChecked(True)
+
+        self.checkBox1_1.pressed.connect(self.clickedcheck_1)
+        self.checkBox1_2.pressed.connect(self.clickedcheck_1)
+        self.checkBox1_3.pressed.connect(self.clickedcheck_1)
+
+        self.checkBox2_1.pressed.connect(self.clickedcheck_2)
+        self.checkBox2_2.pressed.connect(self.clickedcheck_2)
+        self.checkBox2_3.pressed.connect(self.clickedcheck_2)
+
+        self.checkBox3_1.pressed.connect(self.clickedcheck_3)
+        self.checkBox3_2.pressed.connect(self.clickedcheck_3)
+        self.checkBox3_3.pressed.connect(self.clickedcheck_3)
+
+        self.checkBox4_1.pressed.connect(self.clickedcheck_4)
+        self.checkBox4_2.pressed.connect(self.clickedcheck_4)
+        self.checkBox4_3.pressed.connect(self.clickedcheck_4)
+
+    #저장버튼 클릭 이벤트
+    def savebutton_clicked(self):
+        self.option_data.pressing_mic_key = self.keySequenceEdit.keySequence().toString()
+        self.option_data.show_content_key = self.keySequenceEdit_2.keySequence().toString()
+        self.option_data.copy_key = self.keySequenceEdit_3.keySequence().toString()
+        self.option_data.quit_key = self.keySequenceEdit_4.keySequence().toString()
+        if self.checkBox1_1.isChecked():
+            self.option_data.pressing_mic_key_combination = self.checkBox1_1.text()
+        elif self.checkBox1_2.isChecked():
+            self.option_data.pressing_mic_key_combination = self.checkBox1_2.text()
+        elif self.checkBox1_3.isChecked():
+            self.option_data.pressing_mic_key_combination = self.checkBox1_3.text()
+
+        if self.checkBox2_1.isChecked():
+            self.option_data.show_content_key_combination = self.checkBox2_1.text()
+        elif self.checkBox2_2.isChecked():
+            self.option_data.show_content_key_combination = self.checkBox2_2.text()
+        elif self.checkBox2_3.isChecked():
+            self.option_data.show_content_key_combination = self.checkBox2_3.text()
+
+        if self.checkBox3_1.isChecked():
+            self.option_data.copy_key_combination = self.checkBox3_1.text()
+        elif self.checkBox3_2.isChecked():
+            self.option_data.copy_key_combination = self.checkBox3_2.text()
+        elif self.checkBox3_3.isChecked():
+            self.option_data.copy_key_combination = self.checkBox3_3.text()
+
+        if self.checkBox4_1.isChecked():
+            self.option_data.quit_key_combination = self.checkBox4_1.text()
+        elif self.checkBox4_2.isChecked():
+            self.option_data.quit_key_combination = self.checkBox4_2.text()
+        elif self.checkBox4_3.isChecked():
+            self.option_data.quit_key_combination = self.checkBox4_3.text()
+
+        self.option_data.save_option()
+        self.optionSignals.changed_key.emit()
+        print("save the key option")
+        self.close()
+
+    #체크박스 3개 중 하나만 체크상태 유지
+    def clickedcheck_1(self):
+        self.checkBox1_1.setChecked(False)
+        self.checkBox1_2.setChecked(False)
+        self.checkBox1_3.setChecked(False)
+
+    def clickedcheck_2(self):
+        self.checkBox2_1.setChecked(False)
+        self.checkBox2_2.setChecked(False)
+        self.checkBox2_3.setChecked(False)
+
+    def clickedcheck_3(self):
+        self.checkBox3_1.setChecked(False)
+        self.checkBox3_2.setChecked(False)
+        self.checkBox3_3.setChecked(False)
+
+    def clickedcheck_4(self):
+        self.checkBox4_1.setChecked(False)
+        self.checkBox4_2.setChecked(False)
+        self.checkBox4_3.setChecked(False)
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

@@ -16,7 +16,7 @@ from option_window.gui_gpt_hyperparameter import Parameter_MainWindow
 import sys
 
 
-class Option_MainWindow(QMainWindow, QWidget):
+class Option_MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setupUi()
@@ -24,42 +24,33 @@ class Option_MainWindow(QMainWindow, QWidget):
         self.show()
 
     def setupUi(self):
-        self.setObjectName("MainWindow")
-        self.resize(480, 500)
-        self.centralwidget = QtWidgets.QWidget(parent=self)
-        self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget = QtWidgets.QWidget(parent=self)
-        self.centralwidget.setObjectName("centralwidget")
-        self.button1 = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button1.setGeometry(QtCore.QRect(120, 40, 260, 80))
+        self.setObjectName("Form")
+        self.resize(480, 527)
+        self.setMinimumSize(QtCore.QSize(480, 527))
+        self.setMaximumSize(QtCore.QSize(480, 527))
+        self.button1 = QtWidgets.QPushButton(self)
+        self.button1.setGeometry(QtCore.QRect(120, 50, 260, 80))
         self.button1.setObjectName("button1")
-        self.button2 = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button2.setGeometry(QtCore.QRect(120, 150, 260, 80))
+        self.button2 = QtWidgets.QPushButton(self)
+        self.button2.setGeometry(QtCore.QRect(120, 160, 260, 80))
         self.button2.setObjectName("button2")
-        self.button3 = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button3.setGeometry(QtCore.QRect(120, 260, 260, 80))
+        self.button3 = QtWidgets.QPushButton(self)
+        self.button3.setGeometry(QtCore.QRect(120, 280, 260, 80))
         self.button3.setObjectName("button3")
-        self.button4 = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.button4.setGeometry(QtCore.QRect(120, 370, 260, 80))
+        self.button4 = QtWidgets.QPushButton(self)
+        self.button4.setGeometry(QtCore.QRect(120, 400, 260, 80))
         self.button4.setObjectName("button4")
-        self.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=self)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 480, 22))
-        self.menubar.setObjectName("menubar")
-        self.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=self)
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.button1.setText(_translate("MainWindow", "모델 설정"))
-        self.button2.setText(_translate("MainWindow", "API 입력 및 파일 경로 설정"))
-        self.button3.setText(_translate("MainWindow", "단축키 설정"))
-        self.button4.setText(_translate("MainWindow", "ChatGPT 변수 설정"))
+        self.setWindowTitle(_translate("Form", "옵션"))
+        self.button1.setText(_translate("Form", "모델 설정"))
+        self.button2.setText(_translate("Form", "API 입력 및 파일 경로 설정"))
+        self.button3.setText(_translate("Form", "단축키 설정"))
+        self.button4.setText(_translate("Form", "ChatGPT 변수 설정"))
 
     def initiateSignals(self):
         self.button1.clicked.connect(self.model_clicked)
@@ -68,32 +59,19 @@ class Option_MainWindow(QMainWindow, QWidget):
         self.button4.clicked.connect(self.parameter_clicked)
 
     def model_clicked(self):
-        self.close()
         self.model = Model_Dialog()
-        self.model.exec()
         self.show()
 
     def api_clicked(self):
-        self.close()
         self.api = Api_MainWindow()
         self.show()
 
     def keyboard_clicked(self):
-        self.close()
         self.key = Keyboard_MainWindow()
         self.show()
 
     def parameter_clicked(self):
-        self.close()
         self.para = Parameter_MainWindow()
         self.show()
-
-    def closeEvent(self, event):
-        self.close()
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    Option = Option_MainWindow()
-    sys.exit(app.exec())
 
 
