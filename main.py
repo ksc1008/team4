@@ -11,6 +11,7 @@ import document_loader.indexCreator
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+    #document_loader.indexCreator.createDB()
     document_loader.indexCreator.loadDB()
     keyboardEvent = KeyboardEvents()
     keyboardEvent.start()
