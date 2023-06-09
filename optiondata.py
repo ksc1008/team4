@@ -1,4 +1,5 @@
 import json
+import os
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject
 from signalManager import SignalManager
 
@@ -39,7 +40,7 @@ class Option_data(QObject):
             self.temperature = 0.5
             self.max_tokens = 2048
 
-            self.path = ""
+            self.path = os.path.dirname(os.path.abspath(__file__)) + "/workspace/"
 
             self.api_key = {"OpenAI API KEY": "", "Google CSE ID": "", "Google API KEY": ""}
 
@@ -125,7 +126,7 @@ class Option_data(QObject):
             self.temperature = 0.5
             self.max_tokens = 2048
 
-            self.path = ""
+            self.path = os.path.dirname(os.path.abspath(__file__)) + "/workspace/"
 
             self.api_key = {"OpenAI API key": "", "Google CSE ID": "", "Google API KEY": ""}
 
@@ -146,4 +147,3 @@ class Option_data(QObject):
 
 if __name__ == "__main__":
     option = Option_data()
-    print(list(option.api_key.keys()))

@@ -95,6 +95,8 @@ class Api_MainWindow(QWidget):
         self.label_4.setText(_translate("MainWindow", "API 이름 추가하기"))
         self.pushButton_4.setText(_translate("MainWindow", "추가"))
 
+        self.lineEdit.setText(self.option_data.path)
+
         self.apikeylist = list(self.option_data.api_key.keys())
         for key in self.apikeylist:
             self.listWidget.addItem(key)
@@ -115,7 +117,7 @@ class Api_MainWindow(QWidget):
 
     #경로추가 버튼 클릭 이벤트
     def savepath_clicked(self):
-        dir = QFileDialog.getExistingDirectory(self, "select directory")
+        dir = QFileDialog.getExistingDirectory(self, "select directory", self.option_data.path)
         if not dir:
             return -1
         self.option_data.path = dir
