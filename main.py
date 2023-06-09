@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import *
 import mainWindow
 from ChatGPT1 import MyWindow
 from keyboardEvent import KeyboardEvents
+from optiondata import Option_data
 from signalManager import SignalManager
 import tray
 from option_window.gui_gpt import Option_MainWindow
@@ -13,9 +14,11 @@ import document_loader.indexCreator
 
 if __name__ == '__main__':
 
+    option_data = Option_data()
+
     app = QApplication(sys.argv)
-    #document_loader.indexCreator.createDB()
-    document_loader.indexCreator.loadDB()
+    if option_data.openai_api_key != '':
+        document_loader.indexCreator.loadDB()
 
     widget = QWidget()
     trayIcon = tray.SystemTrayIcon(app, widget)

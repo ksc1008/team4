@@ -77,6 +77,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 mutex = QMutex()
 
+
 # ChatGPT API 함수 : ChatGPT 응답을 return
 def query_chatGPT(prompt):
     qa = document_loader.indexCreator.promptLangchain()
