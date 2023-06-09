@@ -90,11 +90,6 @@ def query_chatGPT(prompt):
             name="Knowledge Base",
             func=qa.run,
             description="This is basically the ability to search in the user's local files. return results if accurate information is found, and skip to other tools if information is not found",
-        ),
-        Tool(
-            name="Google Search",
-            description="Search Google for recent results.",
-            func=search.run
         )
     ]
 
@@ -105,6 +100,7 @@ def query_chatGPT(prompt):
             func=search.run
         )
     )
+
     tools.append(
         Tool(
             name="Search on Wikipedia",
@@ -113,10 +109,11 @@ def query_chatGPT(prompt):
         )
     )
 
-    default_prompt = "\"{}\".Answer in Korean.".format(prompt)
+    default_prompt = "\"{}\".Answer in Korean. Prioritize Knowlege Based promptmm ".format(prompt)
     agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+    p = agent(default_prompt)
 
-    return agent(default_prompt)
+    return p['output']
 
 
 # QFileDialog로 부터 file_name을 입력받아 history를 오픈
