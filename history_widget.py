@@ -65,7 +65,7 @@ class History_widget(QWidget):
         while True:
             try:
                 exist = self.textEdit.toPlainText()
-                self.textEdit.setText(exist + his[self.num]['role'] + ": " + his[self.num]['content'] + '\n')
+                self.textEdit.setText(exist + his[self.num]['input'] + ": " + his[self.num]['output'] + '\n')
                 self.num = self.num + 1
             except IndexError:
                 break

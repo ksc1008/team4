@@ -2,15 +2,6 @@ import json
 import time
 import os
 
-messages = [
-    {
-        "role": "system",
-        "content": "You are a helpful assistant who is good at detailing."
-    }
-]
-
-messages.append({"role": "user", "content": "prompt"})
-
 class History_manage(object):
     def __init__(self):
         os.makedirs("history", exist_ok=True)
@@ -33,15 +24,4 @@ class History_manage(object):
             with open(self.file_name, 'w', encoding='UTF-8') as f:
                 json.dump(text, f)
 
-if __name__ == "__main__":
-    history_manage = History_manage()
-    history_manage.save_history(messages)
-    his = history_manage.open_history(history_manage.file_name)
-    i=1
-    while True:
-        try:
-            print(his[i]['content'])
-            i = i+1
-        except IndexError:
-            break
 

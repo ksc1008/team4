@@ -19,9 +19,9 @@ class Option_data(QObject):
                 self.temperature = option_data['parameter'][0]['temperature']
                 self.max_tokens = option_data['parameter'][0]['max_tokens']
 
-                self.openai_api_key = option_data['api_key'][0]['openai_api_key']
+                self.api_key = option_data['api_key'][0]
 
-                self.path = option_data['path']
+                self.path = option_data['path'][0]['path']
 
                 self.quit_key = option_data['key'][0]['quit_key']
                 self.pressing_mic_key = option_data['key'][0]['pressing_mic_key']
@@ -41,7 +41,7 @@ class Option_data(QObject):
 
             self.path = ""
 
-            self.openai_api_key = ""
+            self.api_key = {"OpenAI API KEY": "", "Google CSE ID": "", "Google API KEY": ""}
 
             self.quit_key = ""
             self.quit_key_combination = ""
@@ -67,11 +67,12 @@ class Option_data(QObject):
             "max_tokens": self.max_tokens
         })
         option['api_key'] = []
-        option['api_key'].append({
-            "openai_api_key": self.openai_api_key
-        })
+        option['api_key'].append(self.api_key)
 
-        option['path'] = self.path
+        option['path'] = []
+        option['path'].append({
+            "path": self.path
+        })
 
         option['key'] = []
         option['key'].append({
@@ -95,10 +96,7 @@ class Option_data(QObject):
             json.dump(option, outfile)
 
     def add_api(self, key : str, value : str):
-        self.option_api = []
-        self.option_api.append({
-            key: value
-        })
+        self.api_key[key] = value
 
     def load_option(self):
         try:
@@ -107,9 +105,9 @@ class Option_data(QObject):
                 self.temperature = option_data['parameter'][0]['temperature']
                 self.max_tokens = option_data['parameter'][0]['max_tokens']
 
-                self.openai_api_key = option_data['api_key'][0]['openai_api_key']
+                self.api_key = option_data['api_key'][0]
 
-                self.path = option_data['path']
+                self.path = option_data['path'][0]['path']
 
                 self.quit_key = option_data['key'][0]['quit_key']
                 self.pressing_mic_key = option_data['key'][0]['pressing_mic_key']
@@ -120,14 +118,16 @@ class Option_data(QObject):
                 self.show_content_key_combination = option_data['key'][0]['show_content_key_combination']
                 self.copy_key_combination = option_data['key'][0]['copy_key_combination']
 
-                self.model = option_data['model'][0]['model']
+                self.wikipedia = option_data['model'][0]['wikipedia']
+                self.googlesearch = option_data['model'][0]['googlesearch']
+                self.local = option_data['model'][0]['local']
         except FileNotFoundError:
             self.temperature = 0.5
             self.max_tokens = 2048
 
             self.path = ""
 
-            self.openai_api_key = ""
+            self.api_key = {"OpenAI API key": "", "Google CSE ID": "", "Google API KEY": ""}
 
             self.quit_key = ""
             self.quit_key_combination = ""
@@ -146,3 +146,4 @@ class Option_data(QObject):
 
 if __name__ == "__main__":
     option = Option_data()
+    print(list(option.api_key.keys()))
