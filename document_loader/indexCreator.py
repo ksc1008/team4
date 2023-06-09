@@ -211,7 +211,9 @@ def loadDB():
 def reloadDB():
     print('reloading DB')
     option_data.load_option()
-    openai.api_key = option_data.openai_api_key
+    openai.api_key = option_data.api_key['OpenAI API Key']
+    os.environ["GOOGLE_CSE_ID"] = option_data.api_key['Google CSE ID']
+    os.environ["GOOGLE_API_KEY"] = option_data.api_key['Google API Key']
     loadDB()
 
 def promptLangchain():

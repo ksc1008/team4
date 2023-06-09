@@ -24,6 +24,7 @@ import soundfile as sf
 from multiprocessing import Process, Queue, freeze_support
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt, QTimer, QThread, QObject, QMutex
 
+import signalManager
 from keyboardEvent import KeyboardEvents
 from optiondata import Option_data
 # from "ui 파일 이름" import Ui_MainWindow
@@ -58,7 +59,6 @@ history = History_manage()
 
 os.makedirs("history", exist_ok=True)  # history 폴더 생성
 # os.environ['OPENAI_API_KEY'] =  #환경변수에 API_KEY값 지정
-openai.api_key = os.getenv("OPENAI_API_KEY")
 #
 messages = [
     {
@@ -68,9 +68,8 @@ messages = [
 ]
 os.makedirs("history", exist_ok=True)  # history 폴더 생성
 os.environ['OPENAI_API_KEY'] = option_data.openai_api_key  #환경변수에 API_KEY값 지정
+signalManager.OptionSignal.changed_checked_api.connect(lambda:change_key())
 
-os.environ["GOOGLE_CSE_ID"] = "d5800a6c28add4b7a"
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCjgUqpf5VjTr6Y7Iqic1Zo-LmDBjB_xlM"
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 #
@@ -84,32 +83,39 @@ def query_chatGPT(prompt):
 
     search = GoogleSearchAPIWrapper()
     wikipedia = WikipediaAPIWrapper()
-    llm = OpenAI(temperature=0)
-    tools = [
-        Tool(
-            name="Knowledge Base",
-            func=qa.run,
-            description="This is basically the ability to search in the user's local files. return results if accurate information is found, and skip to other tools if information is not found",
-        )
-    ]
+    llm = OpenAI(temperature=option_data.temperature)
 
-    tools.append(
-        Tool(
-            name="Google Search",
-            description="Search Google for recent results.",
-            func=search.run
-        )
-    )
+    tools = []
 
-    tools.append(
-        Tool(
-            name="Search on Wikipedia",
-            func=wikipedia.run,
-            description="useful for you need to answer questions on Wikipedia."
-        )
-    )
+    if option_data.local == True:
+        tools.append(
+            Tool(
+                name="Knowledge Base",
+                func=qa.run,
+                description="This is basically the ability to search in the user's local files. return results if accurate information is found, and skip to other tools if information is not found",
+            ))
 
-    default_prompt = "\"{}\".Answer in Korean. Prioritize Knowlege Based promptmm ".format(prompt)
+    if option_data.googlesearch == True:
+        tools.append(
+            Tool(
+                name="Google Search",
+                description="Search Google for recent results.",
+                func=search.run
+            )
+        )
+    if option_data.wikipedia == True:
+        tools.append(
+            Tool(
+                name="Search on Wikipedia",
+                func=wikipedia.run,
+                description="useful for you need to answer questions on Wikipedia."
+            )
+        )
+    if option_data.local == True:
+        default_prompt = "\"{}\".Answer in Korean. Prioritize Knowlege Based prompt ".format(prompt)
+    else:
+        default_prompt = "\"{}\".Answer in Korean. ".format(prompt)
+
     agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
     p = agent(default_prompt)
 
@@ -560,3 +566,6 @@ class MyWindow(QObject):
     @pyqtSlot()
     def reset(self):
         self.readyToRecord = True
+
+def change_key():
+    openai.api_key = option_data.api_key['Google API Key']
