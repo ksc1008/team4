@@ -34,6 +34,18 @@ import document_loader
 from signalManager import SignalManager, KeyboardSignal, OverlaySignal, TraySignal
 from history_management import History_manage
 
+from langchain.agents import initialize, Tool, initialize_agent
+from langchain.agents import AgentType
+from langchain.tools import BaseTool
+from langchain.llms import OpenAI
+from langchain import LLMMathChain
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+from langchain.utilities import GoogleSearchAPIWrapper
+from wrapper.wikipidiaAPIWrapper import WikipediaAPIWrapper
+
+
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
@@ -56,16 +68,54 @@ messages = [
 ]
 os.makedirs("history", exist_ok=True)  # history 폴더 생성
 os.environ['OPENAI_API_KEY'] = option_data.openai_api_key  #환경변수에 API_KEY값 지정
+
+os.environ["GOOGLE_CSE_ID"] = "d5800a6c28add4b7a"
+os.environ["GOOGLE_API_KEY"] = "AIzaSyCjgUqpf5VjTr6Y7Iqic1Zo-LmDBjB_xlM"
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 #
 
 mutex = QMutex()
 
-
 # ChatGPT API 함수 : ChatGPT 응답을 return
 def query_chatGPT(prompt):
-    answer = document_loader.indexCreator.promptLangchain(prompt)
-    return answer
+    qa = document_loader.indexCreator.promptLangchain()
+
+    search = GoogleSearchAPIWrapper()
+    wikipedia = WikipediaAPIWrapper()
+    llm = OpenAI(temperature=0)
+    tools = [
+        Tool(
+            name="Knowledge Base",
+            func=qa.run,
+            description="This is basically the ability to search in the user's local files. return results if accurate information is found, and skip to other tools if information is not found",
+        ),
+        Tool(
+            name="Google Search",
+            description="Search Google for recent results.",
+            func=search.run
+        )
+    ]
+
+    tools.append(
+        Tool(
+            name="Google Search",
+            description="Search Google for recent results.",
+            func=search.run
+        )
+    )
+    tools.append(
+        Tool(
+            name="Search on Wikipedia",
+            func=wikipedia.run,
+            description="useful for you need to answer questions on Wikipedia."
+        )
+    )
+
+    default_prompt = "\"{}\".Answer in Korean.".format(prompt)
+    agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+
+    return agent(default_prompt)
 
 
 # QFileDialog로 부터 file_name을 입력받아 history를 오픈

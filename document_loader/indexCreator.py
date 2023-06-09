@@ -193,7 +193,7 @@ def loadDB():
     chroma.persist()
 
 
-def promptLangchain(query):
+def promptLangchain():
     global chroma
     if chroma is None:
         print("chroma didn't set")
@@ -207,4 +207,4 @@ def promptLangchain(query):
         retriever=retriever
     )
 
-    return qa.run(query)
+    return qa
